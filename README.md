@@ -21,7 +21,7 @@ Add the following to your `docker-compose.yml`:
 
 ```yaml
 consumer:
-  image: lblod/delta-consumer-single-graph-maintainer
+  image: lblod/delta-consumer
   environment:
     DCR_SERVICE_NAME: 'your-custom-consumer-identifier' # replace with the desired consumer identifier
     DCR_SYNC_BASE_URL: 'http://base-sync-url # replace with link the application hosting the producer server
@@ -40,7 +40,7 @@ For your convenience, we've added an example custom hook in `./triples-dispatchi
 2. Add the following to your `docker-compose.yml`:
   ```yaml
   consumer:
-    image: lblod/delta-consumer-single-graph-maintainer
+    image: lblod/delta-consumer
     environment:
       DCR_SERVICE_NAME: 'your-custom-consumer-identifier' # replace with the desired consumer identifier
       DCR_SYNC_BASE_URL: 'http://base-sync-url # replace with link the application hosting the producer server
