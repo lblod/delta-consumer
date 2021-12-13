@@ -1,7 +1,9 @@
 const initialSyncDispatching = tryLoadModule('/config/triples-dispatching/custom-dispatching/initial-sync-dispatching',
                                              './single-graph-dispatching/initial-sync-dispatching');
 const deltaSyncDispatching = tryLoadModule('/config/triples-dispatching/custom-dispatching/delta-sync-dispatching',
-                                           './single-graph-dispatching/delta-sync-dispatching');
+                                           './custom-dispatching/delta-sync-dispatching'// ,
+                                           // './single-graph-dispatching/delta-sync-dispatching'
+                                          );
 
 function tryLoadModule(targetModulePath, fallbackModulePath){
   try {
