@@ -4,7 +4,7 @@ import fetch from 'node-fetch';
 import {
     DELTA_SYNC_JOB_OPERATION, DISABLE_DELTA_INGEST, INITIAL_SYNC_JOB_OPERATION,
     JOBS_GRAPH, JOB_CREATOR_URI, SERVICE_NAME, SYNC_FILES_ENDPOINT, WAIT_FOR_INITIAL_SYNC
-} from '../config';
+} from '../cfg';
 import { STATUS_BUSY, STATUS_FAILED, STATUS_SUCCESS } from '../lib/constants';
 import DeltaFile from '../lib/delta-file';
 import { calculateLatestDeltaTimestamp } from '../lib/delta-sync-job';

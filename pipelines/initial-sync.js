@@ -3,7 +3,7 @@ import * as mu from 'mu';
 import {
     DISABLE_INITIAL_SYNC, INITIAL_SYNC_JOB_OPERATION,
     JOBS_GRAPH, JOB_CREATOR_URI, SERVICE_NAME
-} from '../config';
+} from '../cfg';
 import { INITIAL_SYNC_TASK_OPERATION, STATUS_BUSY, STATUS_FAILED, STATUS_SCHEDULED, STATUS_SUCCESS } from '../lib/constants';
 import { createDeltaSyncTask } from '../lib/delta-sync-task';
 import { getLatestDumpFile } from '../lib/dump-file';
