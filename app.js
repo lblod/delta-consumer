@@ -1,7 +1,7 @@
 import { CronJob } from 'cron';
 import { app, errorHandler } from 'mu';
 import {
-    CRON_PATTERN_DELTA_SYNC, INITIAL_SYNC_JOB_OPERATION, SERVICE_NAME
+  CRON_PATTERN_DELTA_SYNC, INITIAL_SYNC_JOB_OPERATION, SERVICE_NAME
 } from './cfg';
 import { waitForDatabase } from './lib/database';
 import { ProcessingQueue } from './lib/processing-queue';
@@ -26,7 +26,6 @@ new CronJob(CRON_PATTERN_DELTA_SYNC, async function() {
 /*
  * ENDPOINTS CURRENTLY MEANT FOR DEBUGGING
  */
-
 app.post('/initial-sync-jobs', async function( _, res ){
   startInitialSync();
   res.send({ msg: 'Started initial sync job' });
