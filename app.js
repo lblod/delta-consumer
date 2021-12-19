@@ -2,7 +2,7 @@ import { CronJob } from 'cron';
 import { app, errorHandler } from 'mu';
 import {
     CRON_PATTERN_DELTA_SYNC, INITIAL_SYNC_JOB_OPERATION, SERVICE_NAME
-} from './config';
+} from './cfg';
 import { waitForDatabase } from './lib/database';
 import { ProcessingQueue } from './lib/processing-queue';
 import { cleanupJob, getJobs } from './lib/job';
