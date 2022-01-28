@@ -10,6 +10,7 @@ export const DISABLE_INITIAL_SYNC = process.env.DCR_DISABLE_INITIAL_SYNC == 'tru
 export const WAIT_FOR_INITIAL_SYNC = process.env.DCR_WAIT_FOR_INITIAL_SYNC == 'false'? false: true;
 export const DUMPFILE_FOLDER = process.env.DCR_DUMPFILE_FOLDER || 'consumer/deltas';
 export const CRON_PATTERN_DELTA_SYNC = process.env.DCR_CRON_PATTERN_DELTA_SYNC || '0 * * * * *'; // every minute
+export const CHUNK_SIZE = process.env.CHUNK_SIZE || 10000; // 10000 lines by 10000 lines
 
 // GRAPHS
 export const JOBS_GRAPH = process.env.JOBS_GRAPH || 'http://mu.semte.ch/graphs/system/jobs';
