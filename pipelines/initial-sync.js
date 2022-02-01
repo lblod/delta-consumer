@@ -55,7 +55,8 @@ async function runInitialSync() {
 
     if (dumpFile) {
       await updateStatus(task, STATUS_BUSY);
-      await dumpFile.load(onBatchReady);
+      const termObjects = await dumpFile.load();
+      await initialSyncDispatching.dispatch({ mu, muAuthSudo }, { termObjects });
       await updateStatus(task, STATUS_SUCCESS);
     } else {
       console.log(`No dump file to consume. Is the producing stack ready?`);
@@ -81,8 +82,4 @@ async function runInitialSync() {
     }
     throw e;
   }
-}
-
-async function onBatchReady(termObjects) {
-  await initialSyncDispatching.dispatch({ mu, muAuthSudo }, { termObjects });
 }
