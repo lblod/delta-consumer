@@ -1,6 +1,6 @@
 {
-  "name": "delta-consumer-single-graph-maintainer",
-  "version": "0.0.4",
+  "name": "delta-consumer",
+  "version": "0.0.6",
   "description": "Customizable consumer service to synchronise data from a producer stack",
   "main": "app.js",
   "scripts": {
@@ -17,7 +17,7 @@
   },
   "homepage": "https://github.com/lblod/delta-consumer#readme",
   "dependencies": {
-    "@lblod/mu-auth-sudo": "0.3.2",
+    "@lblod/mu-auth-sudo": "0.5.1",
     "cron": "^1.8.2",
     "fs-extra": "^9.0.1",
     "node-fetch": "^2.6.1",

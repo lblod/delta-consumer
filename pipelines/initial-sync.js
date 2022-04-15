@@ -52,16 +52,13 @@ async function runInitialSync() {
     task = await createTask(JOBS_GRAPH, job,"0", INITIAL_SYNC_TASK_OPERATION, STATUS_SCHEDULED);
 
     const dumpFile = await getLatestDumpFile();
-    if (dumpFile) {
 
+    if (dumpFile) {
       await updateStatus(task, STATUS_BUSY);
       const termObjects = await dumpFile.load();
-
       await initialSyncDispatching.dispatch({ mu, muAuthSudo }, { termObjects });
-
       await updateStatus(task, STATUS_SUCCESS);
-    }
-    else {
+    } else {
       console.log(`No dump file to consume. Is the producing stack ready?`);
       throw new Error('No dump file found.');
     }

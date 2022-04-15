@@ -1,6 +1,7 @@
 import * as muAuthSudo from '@lblod/mu-auth-sudo';
 import * as mu from 'mu';
-import loggedInFetch from '../lib/fetcher';
+import fetcher from '../lib/fetcher';
+
 import {
     DELTA_SYNC_JOB_OPERATION, DISABLE_DELTA_INGEST, INITIAL_SYNC_JOB_OPERATION,
     JOBS_GRAPH, JOB_CREATOR_URI, SERVICE_NAME, SYNC_FILES_ENDPOINT, WAIT_FOR_INITIAL_SYNC
@@ -101,7 +102,7 @@ async function runDeltaSync() {
 
 async function getSortedUnconsumedFiles(since) {
   try {
-    const response = await loggedInFetch(`${SYNC_FILES_ENDPOINT}?since=${since.toISOString()}`, {
+    const response = await fetcher(`${SYNC_FILES_ENDPOINT}?since=${since.toISOString()}`, {
       headers: {
         'Accept': 'application/vnd.api+json'
       }
