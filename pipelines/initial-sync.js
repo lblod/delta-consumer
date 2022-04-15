@@ -1,8 +1,8 @@
 import * as muAuthSudo from '@lblod/mu-auth-sudo';
 import * as mu from 'mu';
 import {
-    DISABLE_INITIAL_SYNC, INITIAL_SYNC_JOB_OPERATION,
-    JOBS_GRAPH, JOB_CREATOR_URI, SERVICE_NAME
+  DISABLE_INITIAL_SYNC, INITIAL_SYNC_JOB_OPERATION,
+  JOBS_GRAPH, JOB_CREATOR_URI, SERVICE_NAME, WAIT_FOR_INITIAL_SYNC
 } from '../cfg';
 import { INITIAL_SYNC_TASK_OPERATION, STATUS_BUSY, STATUS_FAILED, STATUS_SCHEDULED, STATUS_SUCCESS } from '../lib/constants';
 import { createDeltaSyncTask } from '../lib/delta-sync-task';
@@ -23,9 +23,14 @@ export async function startInitialSync() {
         console.log(`No initial sync has run yet, or previous failed (see: ${initialSyncJob ? initialSyncJob.job : 'N/A'})`);
         console.log(`(Re)starting initial sync`);
 
-        const job = await runInitialSync();
+        // We start the initial sync but only await it if we are supposed to
+        let job = runInitialSync();
+        if ( WAIT_FOR_INITIAL_SYNC )
+          job = await job;
 
-        console.log(`Initial sync ${job} has been successfully run`);
+        // Whenever the job is done (perhaps it was awaited) we want to indicate success.
+        job.then( () => console.log(`Initial sync ${job} has been successfully run`) );
+
       } else if (initialSyncJob.status !== STATUS_SUCCESS){
         throw `Unexpected status for ${initialSyncJob.job}: ${initialSyncJob.status}. Check in the database what went wrong`;
       } else {
