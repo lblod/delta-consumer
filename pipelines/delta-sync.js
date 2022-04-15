@@ -8,7 +8,7 @@ import {
 } from '../cfg';
 import { STATUS_BUSY, STATUS_FAILED, STATUS_SUCCESS } from '../lib/constants';
 import DeltaFile from '../lib/delta-file';
-import { calculateLatestDeltaTimestamp } from '../lib/delta-sync-job';
+import { getNextDeltaTimestamp } from "../lib/delta-sync-job";
 import { createDeltaSyncTask } from '../lib/delta-sync-task';
 import { createError, createJobError } from '../lib/error';
 import { createJob, failJob, getJobs, getLatestJobForOperation } from '../lib/job';
@@ -18,7 +18,7 @@ import { deltaSyncDispatching } from '../triples-dispatching';
 /**
  * Runs the delta sync one time.
  */
-export async function startDeltaSync() {
+export async function deltaSync() {
   try {
     if (await canStartDeltaSync()) {
       console.log('Proceeding in Normal operation mode: ingest deltas');
@@ -58,18 +58,28 @@ async function canStartDeltaSync() {
   return true;
 }
 
+/**
+ * Executes a single delta sync run, assuming all lights are green.
+ *
+ * Requests all changes from the producer and executes them.  If some
+ * file could not be processed, the following files are not processed
+ * either and this call yields a failed job in the triplestore.  Code
+ * higher up the tree will download the files again in another cycle.
+ * Data regarding the current run (a Job) and the files it has processed
+ * (a Task) is written to the triplestore.
+ */
 async function runDeltaSync() {
   let job;
 
   try {
-    const latestDeltaTimestamp = await calculateLatestDeltaTimestamp();
-    const sortedDeltafiles = await getSortedUnconsumedFiles(latestDeltaTimestamp);
+    const nextDeltaTimestamp = await getNextDeltaTimestamp();
+    const sortedDeltaFiles = await fetchSortedUnconsumedFiles(nextDeltaTimestamp);
 
-    if(sortedDeltafiles.length) {
+    if(sortedDeltaFiles.length) {
       job = await createJob(JOBS_GRAPH, DELTA_SYNC_JOB_OPERATION, JOB_CREATOR_URI, STATUS_BUSY);
 
       let parentTask;
-      for(const [ index, deltaFile ] of sortedDeltafiles.entries()) {
+      for(const [ index, deltaFile ] of sortedDeltaFiles.entries()) {
         console.log(`Ingesting deltafile created on ${deltaFile.created}`);
         const task = await createDeltaSyncTask(JOBS_GRAPH, job, `${index}`, STATUS_BUSY, deltaFile, parentTask);
         try {
@@ -90,7 +100,7 @@ async function runDeltaSync() {
       await updateStatus(job, STATUS_SUCCESS);
     }
     else {
-      console.log(`No new deltas published since ${latestDeltaTimestamp}: nothing to do.`);
+      console.log(`No new deltas published since ${nextDeltaTimestamp}: nothing to do.`);
     }
   }
   catch (error) {
@@ -104,15 +114,28 @@ async function runDeltaSync() {
   }
 }
 
-async function getSortedUnconsumedFiles(since) {
+/**
+ * Requests all available files from the producer endpoint since supplied timestamp.
+ *
+ * @param {Date} since Date from when we want to fetch the changes
+ * (likely last previous timestamp).
+ */
+async function fetchSortedUnconsumedFiles(since) {
   try {
-    const response = await fetcher(`${SYNC_FILES_ENDPOINT}?since=${since.toISOString()}`, {
-      headers: {
-        'Accept': 'application/vnd.api+json'
-      }
-    });
+    const response = await fetcher(
+      `${SYNC_FILES_ENDPOINT}?since=${since.toISOString()}`,
+      { headers: { Accept: 'application/vnd.api+json' } }
+    );
+
+    if( !response.ok )
+      throw new Error("Backend did not respond with good status code");
+
     const json = await response.json();
-    return json.data.map(f => new DeltaFile(f)).sort(f => f.created);
+    // TODO: Do we have to sort the files received from the producer or
+    // may we assume the producer provides them in an optimal order?
+    return json.data
+      .map(f => new DeltaFile(f))
+      .sort(f => f.created);
   } catch (e) {
     console.log(`Unable to retrieve unconsumed files from ${SYNC_FILES_ENDPOINT}`);
     throw e;

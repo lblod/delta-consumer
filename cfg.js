@@ -37,6 +37,7 @@ if(!process.env.DCR_SYNC_DATASET_SUBJECT && (WAIT_FOR_INITIAL_SYNC || !DISABLE_I
   throw `Expected 'DCR_SYNC_DATASET_SUBJECT' to be provided by default.`;
 export const SYNC_DATASET_SUBJECT = process.env.DCR_SYNC_DATASET_SUBJECT;
 
+// TODO: Why does this error and/or why can't this variable have a default value
 if(!process.env.DCR_INITIAL_SYNC_JOB_OPERATION && (WAIT_FOR_INITIAL_SYNC || !DISABLE_INITIAL_SYNC))
   throw `Expected 'DCR_INITIAL_SYNC_JOB_OPERATION' to be provided by default.`;
 export const INITIAL_SYNC_JOB_OPERATION = process.env.DCR_INITIAL_SYNC_JOB_OPERATION;

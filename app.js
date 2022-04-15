@@ -7,7 +7,7 @@ import {
 import { waitForDatabase } from './lib/database';
 import { ProcessingQueue } from './lib/processing-queue';
 import { cleanupJob, getJobs, setDanglingJobsStatusToFailed } from './lib/job';
-import { startDeltaSync } from './pipelines/delta-sync';
+import { deltaSync } from './pipelines/delta-sync';
 import { startInitialSync } from './pipelines/initial-sync';
 
 // Main runloop
@@ -20,7 +20,7 @@ waitForDatabase(async () => {
   new CronJob(CRON_PATTERN_DELTA_SYNC, async function () {
     const now = new Date().toISOString();
     console.info(`Delta sync triggered by cron job at ${now}`);
-    deltaSyncQueue.addJob(startDeltaSync);
+    deltaSyncQueue.addJob(deltaSync);
   }, null, true);
 });
 
@@ -46,7 +46,7 @@ app.delete('/initial-sync-jobs', async function( _, res ){
 });
 
 app.post('/delta-sync-jobs', async function( _, res ){
-  startDeltaSync();
+  deltaSync();
   res.send({ msg: 'Started delta sync job' });
 });
 
