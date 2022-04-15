@@ -15,43 +15,47 @@ import { createJob, failJob, getJobs, getLatestJobForOperation } from '../lib/jo
 import { updateStatus } from '../lib/utils';
 import { deltaSyncDispatching } from '../triples-dispatching';
 
+/**
+ * Runs the delta sync one time.
+ */
 export async function startDeltaSync() {
   try {
-    console.info(`DISABLE_DELTA_INGEST: ${DISABLE_DELTA_INGEST}`);
-    if (DISABLE_DELTA_INGEST) {
-      console.warn('Automated delta ingest disabled');
-    }
-    else {
-      console.log(`Status of WAIT_FOR_INITIAL_SYNC is: ${WAIT_FOR_INITIAL_SYNC}`);
-      let previousInitialSyncJob;
-
-      if (WAIT_FOR_INITIAL_SYNC){
-        previousInitialSyncJob = await getLatestJobForOperation(INITIAL_SYNC_JOB_OPERATION, JOB_CREATOR_URI);
-      }
-
-      if (WAIT_FOR_INITIAL_SYNC && !(previousInitialSyncJob && previousInitialSyncJob.status == STATUS_SUCCESS)) {
-        console.log('No successful initial sync job found. Not scheduling delta ingestion.');
-      }
-      else {
-        console.log('Proceeding in Normal operation mode: ingest deltas');
-        //Note: it is ok to fail these, because we assume it is running in a queue. So there is no way
-        // a job in status busy was effectively doing something
-        console.log(`Verify whether there are hanging jobs`);
-        const jobs = await getJobs(DELTA_SYNC_JOB_OPERATION, [ STATUS_BUSY ]);
-        console.log(`Found ${jobs.length} hanging jobs, failing them first`);
-        for(const job of jobs){
-          await failJob(job.job);
-        }
-
-        await runDeltaSync();
-      }
-
+    if (await canStartDeltaSync()) {
+      console.log('Proceeding in Normal operation mode: ingest deltas');
+      await runDeltaSync();
     }
   }
   catch(e) {
     console.log(e);
     await createError(JOBS_GRAPH, SERVICE_NAME, `Unexpected error while running normal sync task: ${e}`);
   }
+}
+
+/**
+ * Determines if we can start a delta sync.
+ *
+ * Verifies delta syncs are enabled and whether an initial sync has been completed sucessfully when requested.
+ *
+ * @return {Promise<boolean>} truethy if we can start the delta sync.
+ */
+async function canStartDeltaSync() {
+  if (DISABLE_DELTA_INGEST) {
+    console.warn('Automated delta ingest disabled');
+    return false;
+  } else {
+    let previousInitialSyncJob;
+
+    if (WAIT_FOR_INITIAL_SYNC) {
+      previousInitialSyncJob = await getLatestJobForOperation(INITIAL_SYNC_JOB_OPERATION, JOB_CREATOR_URI);
+
+      if (previousInitialSyncJob?.status != STATUS_SUCCESS) {
+        console.log('No successful initial sync job found. Not scheduling delta ingestion.');
+        return false;
+      }
+    }
+  }
+
+  return true;
 }
 
 async function runDeltaSync() {

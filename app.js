@@ -3,29 +3,35 @@ import { app, errorHandler } from 'mu';
 import {
   CRON_PATTERN_DELTA_SYNC, INITIAL_SYNC_JOB_OPERATION, SERVICE_NAME
 } from './cfg';
+
 import { waitForDatabase } from './lib/database';
 import { ProcessingQueue } from './lib/processing-queue';
-import { cleanupJob, getJobs } from './lib/job';
+import { cleanupJob, getJobs, setDanglingJobsStatusToFailed } from './lib/job';
 import { startDeltaSync } from './pipelines/delta-sync';
 import { startInitialSync } from './pipelines/initial-sync';
 
-const deltaSyncQueue = new ProcessingQueue('delta-sync-queue');
+// Main runloop
+waitForDatabase(async () => {
+  await setDanglingJobsStatusToFailed();
+  await startInitialSync();
 
-app.get('/', function(req, res) {
-  res.send(`Hello, you have reached ${SERVICE_NAME}! I'm doing just fine :)`);
+  const deltaSyncQueue = new ProcessingQueue('delta-sync-queue');
+
+  new CronJob(CRON_PATTERN_DELTA_SYNC, async function () {
+    const now = new Date().toISOString();
+    console.info(`Delta sync triggered by cron job at ${now}`);
+    deltaSyncQueue.addJob(startDeltaSync);
+  }, null, true);
 });
 
-waitForDatabase(startInitialSync);
-
-new CronJob(CRON_PATTERN_DELTA_SYNC, async function() {
-  const now = new Date().toISOString();
-  console.info(`Delta sync triggered by cron job at ${now}`);
-  deltaSyncQueue.addJob(startDeltaSync);
-}, null, true);
 
 /*
  * ENDPOINTS CURRENTLY MEANT FOR DEBUGGING
  */
+app.get('/', function(req, res) {
+  res.send(`Hello, you have reached ${SERVICE_NAME}! I'm doing just fine :)`);
+});
+
 app.post('/initial-sync-jobs', async function( _, res ){
   startInitialSync();
   res.send({ msg: 'Started initial sync job' });
