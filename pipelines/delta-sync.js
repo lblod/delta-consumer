@@ -1,6 +1,6 @@
-import * as muAuthSudo from '@lblod/mu-auth-sudo';
-import * as mu from 'mu';
 import fetcher from '../lib/fetcher';
+import transform from '../config/transform';
+import dispatch from '../config/dispatch';
 
 import {
     DELTA_SYNC_JOB_OPERATION, DISABLE_DELTA_INGEST, INITIAL_SYNC_JOB_OPERATION,
@@ -13,7 +13,6 @@ import { createDeltaSyncTask } from '../lib/delta-sync-task';
 import { createError, createJobError } from '../lib/error';
 import { createJob, failJob, getJobs, getLatestJobForOperation } from '../lib/job';
 import { updateStatus } from '../lib/utils';
-import { deltaSyncDispatching } from '../triples-dispatching';
 
 /**
  * Runs the delta sync one time.
@@ -78,15 +77,42 @@ async function runDeltaSync() {
     if(sortedDeltaFiles.length) {
       job = await createJob(JOBS_GRAPH, DELTA_SYNC_JOB_OPERATION, JOB_CREATOR_URI, STATUS_BUSY);
 
-      let parentTask;
+      let previousTask;
       for(const [ index, deltaFile ] of sortedDeltaFiles.entries()) {
         console.log(`Ingesting deltafile created on ${deltaFile.created}`);
-        const task = await createDeltaSyncTask(JOBS_GRAPH, job, `${index}`, STATUS_BUSY, deltaFile, parentTask);
+
+        const task = await createDeltaSyncTask(JOBS_GRAPH, job, `${index}`, STATUS_BUSY, deltaFile, previousTask);
+        previousTask = task;
+
         try {
-          const termObjectChangeSets = await deltaFile.load();
-          await deltaSyncDispatching.dispatch({ mu, muAuthSudo }, { termObjectChangeSets });
+          // TODO: Code that lives here should cope with:
+          // - changing the changesets,
+          // - storing them on disk,
+          // - allowing for full async responsibility by the consumer
+          const changesets = (await deltaFile.download())
+            .map((d) => {
+              d.inserts = d.inserts.map(transform);
+              d.deletes = d.deletes.map(transform);
+              return d;
+            });
+
+          // TODO: The task may be an interesting thing to change the
+          // status of by one of the processors by changeset.  If/when
+          // that is the case, we should be able to process content.
+
+          // * How to specify where data flows to:
+          //   - manually :: you get triples, you store them.  you'll deal with downloading files.
+          //   - move triples to right graphs :: enrich received triples with
+          //     graphs, we'll save them
+          //   - description based on classes properties and inverse properties :: roughly
+          //     what mu-authorization understands but with smarter caching.  FUTURE WORK
+          //   - all data goes to one graph
+          // * What about file downloads?
+          //   - We can optionally take care of them
+          //   - We offer some helpers to download them
+          await dispatch(changesets);
+
           await updateStatus(task, STATUS_SUCCESS);
-          parentTask = task;
           console.log(`Sucessfully ingested deltafile created on ${deltaFile.created}`);
         }
         catch(e){

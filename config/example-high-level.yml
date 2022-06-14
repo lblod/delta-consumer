@@ -1,0 +1,19 @@
+prefixes:
+  - foaf: "http://xmlns.com/foaf/0.1/"
+  - mu: "http://mu.semte.ch/vocabularies/core/"
+  - graphs: "http://mu.semte.ch/graphs/"
+rules:
+  - target: "graphs:protected"
+    match:
+      type: "foaf:Person"
+      predicateIn:
+        - "foaf:GivenName"
+        - "mu:uuid"
+        - "a"
+  - target: "graphs:public"
+    match:
+      type: "foaf:Person"
+      predicateNotIn:
+        - "foaf:GivenName"
+        - "mu:uuid"
+        - "a"
