@@ -17,7 +17,7 @@ import { updateStatus } from '../lib/utils';
 /**
  * Runs the delta sync one time.
  */
-export async function deltaSync() {
+export async function startDeltaSync() {
   try {
     if (await canStartDeltaSync()) {
       console.log('Proceeding in Normal operation mode: ingest deltas');
