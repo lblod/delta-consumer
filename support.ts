@@ -51,11 +51,13 @@ export async function moveTriples(changesets: ChangeSet[]) {
       await update(`INSERT DATA {
           GRAPH <http://mu.semte.ch/graphs/private> {
             ${inserts.map(toSparqlTriple).join("\n")}
-          }`);
+          }
+        }`);
     if (deletes.length)
       await update(`DELETE DATA {
           GRAPH <http://mu.semte.ch/graphs/private> {
             ${deletes.map(toSparqlTriple).join("\n")}
-          }`);
+          }
+        }`);
   }
 }
