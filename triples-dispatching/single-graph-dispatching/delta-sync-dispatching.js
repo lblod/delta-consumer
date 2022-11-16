@@ -8,7 +8,7 @@ const { BYPASS_MU_AUTH_FOR_EXPENSIVE_QUERIES,
         INGEST_GRAPH
       } = require('./config');
 const { batchedDbUpdate } = require('./utils');
-const endpoint = BYPASS_MU_AUTH_FOR_EXPENSIVE_QUERIES ? DIRECT_DATABASE_ENDPOINT : process.env.MU_SPARQL_ENDPOINT;
+const endpoint = BYPASS_MU_AUTH_FOR_EXPENSIVE_QUERIES ? DIRECT_DATABASE_ENDPOINT : process.env.MU_SPARQL_ENDPOINT; //Defaults to mu-auth
 
 
 /**
@@ -29,13 +29,19 @@ async function dispatch(lib, data){
   const { termObjectChangeSets } =  data;
 
   for (let { deletes, inserts } of termObjectChangeSets) {
+
+    if(BYPASS_MU_AUTH_FOR_EXPENSIVE_QUERIES){
+      console.warn(`Service configured to skip MU_AUTH!`);
+    }
+    console.log(`Using ${endpoint} to insert triples`);
+
     const deleteStatements = deletes.map(o => `${o.subject} ${o.predicate} ${o.object}.`);
     await batchedDbUpdate(
       muAuthSudo.updateSudo,
       INGEST_GRAPH,
       deleteStatements,
       { },
-      process.env.MU_SPARQL_ENDPOINT, //Note: this is the default endpoint through auth
+      endpoint,
       BATCH_SIZE,
       MAX_DB_RETRY_ATTEMPTS,
       SLEEP_BETWEEN_BATCHES,
@@ -48,7 +54,7 @@ async function dispatch(lib, data){
       INGEST_GRAPH,
       insertStatements,
       { },
-      process.env.MU_SPARQL_ENDPOINT, //Note: this is the default endpoint through auth
+      endpoint,
       BATCH_SIZE,
       MAX_DB_RETRY_ATTEMPTS,
       SLEEP_BETWEEN_BATCHES,
