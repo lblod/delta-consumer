@@ -2,6 +2,7 @@
 export const SYNC_FILES_PATH = process.env.DCR_SYNC_FILES_PATH || '/sync/files';
 export const DOWNLOAD_FILE_PATH = process.env.DCR_DOWNLOAD_FILE_PATH || '/files/:id/download';
 export const SYNC_DATASET_PATH = process.env.DCR_SYNC_DATASET_PATH || '/datasets';
+export const DCR_SYNC_FILESHARE_PATH = process.env.DCR_SYNC_FILESHARE_PATH || '/fileshare';
 export const START_FROM_DELTA_TIMESTAMP = process.env.DCR_START_FROM_DELTA_TIMESTAMP;
 export const DELTA_FILE_FOLDER = process.env.DCR_DELTA_FILE_FOLDER || '/tmp/';
 export const KEEP_DELTA_FILES = process.env.DCR_KEEP_DELTA_FILES == 'true';
@@ -44,7 +45,10 @@ export const INITIAL_SYNC_JOB_OPERATION = process.env.DCR_INITIAL_SYNC_JOB_OPERA
 export const SYNC_FILES_ENDPOINT = `${SYNC_BASE_URL}${SYNC_FILES_PATH}`;
 export const DOWNLOAD_FILE_ENDPOINT = `${SYNC_BASE_URL}${DOWNLOAD_FILE_PATH}`;
 export const SYNC_DATASET_ENDPOINT = `${SYNC_BASE_URL}${SYNC_DATASET_PATH}`;
+export const SYNC_FILESHARE_ENDPOINT = `${SYNC_BASE_URL}${DCR_SYNC_FILESHARE_PATH}`;
 
 //LOGIN
+const DCR_SYNC_LOGIN_PATH = process.env.DCR_SYNC_LOGIN_PATH || '/sync/login';
 export const SECRET_KEY = process.env.DCR_SECRET_KEY;
-export const SYNC_LOGIN_ENDPOINT = process.env.DCR_SYNC_LOGIN_ENDPOINT;
+export const SYNC_LOGIN_ENDPOINT = `${SYNC_BASE_URL}${DCR_SYNC_LOGIN_PATH}`;
+
