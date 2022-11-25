@@ -190,6 +190,8 @@ message | oslc:message | xsd:string
 Finds the latest dcat:Dataset a sync point to ingest. Once done, it proceeds in delta-sync mode.
 See also [delta-producer-dump-file-publisher](https://github.com/lblod/delta-producer-dump-file-publisher).
 
+**LIMITATION:** The initial sync will only work with files with plain N3 triples.
+
 #### Delta-sync
 At regular intervals, the service will schedule a sync task. Execution of a task consists of the following steps:
 
