@@ -1,5 +1,3 @@
-import * as muAuthSudo from '@lblod/mu-auth-sudo';
-import * as mu from 'mu';
 import {
     DISABLE_INITIAL_SYNC, INITIAL_SYNC_JOB_OPERATION,
     JOBS_GRAPH, JOB_CREATOR_URI, SERVICE_NAME
@@ -46,17 +44,15 @@ async function runInitialSync() {
   let task;
 
   try {
-
     // Note: they get status busy
     job = await createJob(JOBS_GRAPH, INITIAL_SYNC_JOB_OPERATION, JOB_CREATOR_URI, STATUS_BUSY);
-    task = await createTask(JOBS_GRAPH, job,"0", INITIAL_SYNC_TASK_OPERATION, STATUS_SCHEDULED);
+    task = await createTask(JOBS_GRAPH, job, "0", INITIAL_SYNC_TASK_OPERATION, STATUS_SCHEDULED);
 
     const dumpFile = await getLatestDumpFile();
 
     if (dumpFile) {
       await updateStatus(task, STATUS_BUSY);
-      const termObjects = await dumpFile.load();
-      await initialSyncDispatching.dispatch({ mu, muAuthSudo }, { termObjects });
+      await dumpFile.loadAndDispatch(initialSyncDispatching.dispatch);
       await updateStatus(task, STATUS_SUCCESS);
     } else {
       console.log(`No dump file to consume. Is the producing stack ready?`);
