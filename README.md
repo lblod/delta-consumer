@@ -87,6 +87,8 @@ The following environment variables are optional:
 - `DCR_DISABLE_DELTA_INGEST (default: false)`: flag to disable data ingestion, for example, while initializing the sync
 - `DCR_WAIT_FOR_INITIAL_SYNC (default: true)`: flag to not wait for initial ingestion (meant for debugging)
 - `DCR_KEEP_DELTA_FILES (default: false)`: if you want to keep the downloaded delta-files (ease of troubleshooting)
+- `DCR_SYNC_FILESHARE_PATH` (default '/fileshare') : the path used to share files
+
 
 #### Triples dispatching: single graph ingestion (default behaviour)
 - `INGEST_GRAPH (default: http://mu.semte.ch/graphs/public)`: graph in which all insert changesets are ingested
