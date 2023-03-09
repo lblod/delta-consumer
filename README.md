@@ -1,6 +1,6 @@
 # delta-consumer
 ## WARNING
-The current master branch is currently in a non-working state. Unfortunatly we've haven't the time to finish it so far.
+The master branch is currently in a non-working state. Unfortunatly we've haven't the time to finish right now.
 If extra features/bugfixes need to be added, checkout the latest tag, create a hotfix, release and merge the hotfix branch in master.
 Push both branches, and push the tags.
 Our apologies.
