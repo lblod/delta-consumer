@@ -1,6 +1,6 @@
 /**
  * Dispatch the fetched information to a target graph.
- * @param { mu, muAuthSudo } lib - The provided libraries from the host service.
+ * @param { mu, muAuthSudo, fetch } lib - The provided libraries from the host service.
  * @param { termObjects } data - The fetched quad information, which objects of serialized Terms
  *          [ {
  *              graph: "<http://foo>",

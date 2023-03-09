@@ -1,6 +1,6 @@
 /**
  * Dispatch the fetched information to a target graph.
- * @param { mu, muAuthSudo } lib - The provided libraries from the host service.
+ * @param { mu, muAuthSudo, fetch } lib - The provided libraries from the host service.
  * @param { termObjectChangeSets: { deletes, inserts } } data - The fetched changes sets, which objects of serialized Terms
  *          [ {
  *              graph: "<http://foo>",
