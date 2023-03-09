@@ -23,6 +23,19 @@ async function dispatch(lib, data){
   console.log(`All triples were logged`);
 }
 
+/**
+ * A callback you can override to do extra manipulations
+ *   after initial ingest.
+ * @param { mu, muAuthSudo, fech } lib - The provided libraries from the host service.
+ * @return {void} Nothing
+ */
+async function onFinishInitialIngest(lib) {
+  console.log(`
+    Current implementation does nothing.
+  `);
+}
+
 module.exports = {
-  dispatch
+  dispatch,
+  onFinishInitialIngest
 };
