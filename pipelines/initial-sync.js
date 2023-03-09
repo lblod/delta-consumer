@@ -10,6 +10,9 @@ import { createJob, getLatestJobForOperation } from '../lib/job';
 import { createTask } from '../lib/task';
 import { updateStatus } from '../lib/utils';
 import { initialSyncDispatching } from '../triples-dispatching';
+import * as muAuthSudo from '@lblod/mu-auth-sudo';
+import * as mu from 'mu';
+import * as fetch from 'node-fetch';
 
 export async function startInitialSync() {
   try {
@@ -53,6 +56,11 @@ async function runInitialSync() {
     if (dumpFile) {
       await updateStatus(task, STATUS_BUSY);
       await dumpFile.loadAndDispatch(initialSyncDispatching.dispatch);
+
+      if(initialSyncDispatching.onFinishInitialIngest) {
+        console.log('Found onFinishInitialIngest, calling.');
+        await initialSyncDispatching.onFinishInitialIngest({ mu, muAuthSudo, fetch });
+      }
       await updateStatus(task, STATUS_SUCCESS);
     } else {
       console.log(`No dump file to consume. Is the producing stack ready?`);

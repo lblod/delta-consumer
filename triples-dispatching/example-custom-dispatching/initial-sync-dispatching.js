@@ -1,6 +1,6 @@
 /**
  * Dispatch the fetched information to a target graph.
- * @param { mu, muAuthSudo } lib - The provided libraries from the host service.
+ * @param { mu, muAuthSudo, fetch } lib - The provided libraries from the host service.
  * @param { termObjects } data - The fetched quad information, which objects of serialized Terms
  *          [ {
  *              graph: "<http://foo>",
@@ -23,6 +23,19 @@ async function dispatch(lib, data){
   console.log(`All triples were logged`);
 }
 
+/**
+ * A callback you can override to do extra manipulations
+ *   after initial ingest.
+ * @param { mu, muAuthSudo, fech } lib - The provided libraries from the host service.
+ * @return {void} Nothing
+ */
+async function onFinishInitialIngest(lib) {
+  console.log(`
+    Current implementation does nothing.
+  `);
+}
+
 module.exports = {
-  dispatch
+  dispatch,
+  onFinishInitialIngest
 };
