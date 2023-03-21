@@ -38,7 +38,7 @@ const contextConfig = {
       trigger: { // subjectType or predicateValue
         predicateValue: "generiek:lokaleIdentificator"
       },
-      query: (subject) => `
+      queryTemplate: (subject) => `
         ${PREFIXES}
         CONSTRUCT {
           ?identificator
