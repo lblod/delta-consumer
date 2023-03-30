@@ -13,11 +13,11 @@ export const CRON_PATTERN_DELTA_SYNC = process.env.DCR_CRON_PATTERN_DELTA_SYNC |
 
 // GRAPHS
 export const JOBS_GRAPH = process.env.JOBS_GRAPH || 'http://mu.semte.ch/graphs/system/jobs';
-export const DCR_INGEST_GRAPH = process.env.DCR_INGEST_GRAPH || `http://mu.semte.ch/graphs/public`;
+export const DRC_LANDING_ZONE_GRAPH = process.env.DRC_LANDING_ZONE_GRAPH || `http://mu.semte.ch/graphs/public`;
 
 // ENDPOINTS
-export const DCR_INGEST_DATABASE = process.env.DCR_INGEST_DATABASE || 'database';
-export const DCR_INGEST_DATABASE_ENDPOINT = process.env.DCR_INGEST_DATABASE_ENDPOINT || `http://${INGEST_DATABASE}:8890/sparql`;
+export const DRC_LANDING_ZONE_DATABASE = process.env.DRC_LANDING_ZONE_DATABASE || 'database';
+export const DRC_LANDING_ZONE_DATABASE_ENDPOINT = process.env.DRC_LANDING_ZONE_DATABASE_ENDPOINT || `http://${INGEST_DATABASE}:8890/sparql`;
 
 // MANDATORY SIMPLE
 if (!process.env.DCR_SYNC_BASE_URL)
