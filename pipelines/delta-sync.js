@@ -3,7 +3,8 @@ import * as mu from 'mu';
 import fetcher from '../lib/fetcher';
 import {
   DELTA_SYNC_JOB_OPERATION, DISABLE_DELTA_INGEST, INITIAL_SYNC_JOB_OPERATION,
-  JOBS_GRAPH, JOB_CREATOR_URI, SERVICE_NAME, SYNC_FILES_ENDPOINT, WAIT_FOR_INITIAL_SYNC
+  JOBS_GRAPH, JOB_CREATOR_URI, SERVICE_NAME, SYNC_FILES_ENDPOINT, WAIT_FOR_INITIAL_SYNC,
+  ENABLE_DELTA_CONTEXT
 } from '../config';
 import { STATUS_BUSY, STATUS_FAILED, STATUS_SUCCESS } from '../lib/constants';
 import DeltaFile from '../lib/delta-file';
@@ -69,10 +70,16 @@ async function runDeltaSync() {
         console.log(`Ingesting deltafile created on ${deltaFile.created}`);
         const task = await createDeltaSyncTask(JOBS_GRAPH, job, `${index}`, STATUS_BUSY, deltaFile, parentTask);
         try {
-          const { termObjectChangeSets, termObjectChangeSetsWithContext } = await deltaFile.load();
-          console.log(`Dispatching ${termObjectChangeSets.length} term object change sets`
-            + ` and ${termObjectChangeSetsWithContext.length} term object change sets with context`)
-          await deltaSyncDispatching.dispatch({ mu, muAuthSudo, fetch }, { termObjectChangeSets, termObjectChangeSetsWithContext });
+          if (ENABLE_DELTA_CONTEXT) {
+            const { termObjectChangeSets, termObjectChangeSetsWithContext } = await deltaFile.load();
+            console.log(`Dispatching ${termObjectChangeSets.length} term object change sets`
+              + ` and ${termObjectChangeSetsWithContext.length} term object change sets with context`)
+            await deltaSyncDispatching.dispatch({ mu, muAuthSudo, fetch }, { termObjectChangeSets, termObjectChangeSetsWithContext });
+          } else {
+            const termObjectChangeSets = await deltaFile.load();
+            await deltaSyncDispatching.dispatch({ mu, muAuthSudo, fetch }, { termObjectChangeSets });
+          }
+
           await updateStatus(task, STATUS_SUCCESS);
           parentTask = task;
           console.log(`Sucessfully ingested deltafile created on ${deltaFile.created}`);
