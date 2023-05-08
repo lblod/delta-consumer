@@ -1,9 +1,11 @@
 const initialSyncDispatching = tryLoadModule('/config/triples-dispatching/custom-dispatching/initial-sync-dispatching',
-                                             './single-graph-dispatching/initial-sync-dispatching');
+  './single-graph-dispatching/initial-sync-dispatching');
 const deltaSyncDispatching = tryLoadModule('/config/triples-dispatching/custom-dispatching/delta-sync-dispatching',
-                                           './single-graph-dispatching/delta-sync-dispatching');
+  './single-graph-dispatching/delta-sync-dispatching');
+const deltaContextConfiguration = tryLoadModule('/config/triples-dispatching/custom-dispatching/delta-context-config',
+  './single-graph-dispatching/delta-context-config');
 
-function tryLoadModule(targetModulePath, fallbackModulePath){
+function tryLoadModule(targetModulePath, fallbackModulePath) {
   try {
     const module = require(targetModulePath);
     console.log(`[***************************************************]`);
@@ -11,8 +13,8 @@ function tryLoadModule(targetModulePath, fallbackModulePath){
     console.log(`[***************************************************]`);
     return module;
   }
-  catch(e) {
-    if(e.code && e.code.toLowerCase() == 'MODULE_NOT_FOUND'.toLowerCase()){
+  catch (e) {
+    if (e.code && e.code.toLowerCase() == 'MODULE_NOT_FOUND'.toLowerCase()) {
       console.log(`[!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!]`);
       console.warn(`${targetModulePath} not found, assuming default behaviour loaded on ${fallbackModulePath}`);
       console.log(`[!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!]`);
@@ -29,5 +31,6 @@ function tryLoadModule(targetModulePath, fallbackModulePath){
 
 module.exports = {
   initialSyncDispatching,
-  deltaSyncDispatching
+  deltaSyncDispatching,
+  deltaContextConfiguration
 };

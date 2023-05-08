@@ -1,6 +1,7 @@
 import {
-    DISABLE_INITIAL_SYNC, INITIAL_SYNC_JOB_OPERATION,
-    JOBS_GRAPH, JOB_CREATOR_URI, SERVICE_NAME
+  DISABLE_INITIAL_SYNC, INITIAL_SYNC_JOB_OPERATION,
+  JOBS_GRAPH, JOB_CREATOR_URI, SERVICE_NAME,
+  LANDING_ZONE_GRAPH, LANDING_ZONE_DATABASE_ENDPOINT,
 } from '../config';
 import { INITIAL_SYNC_TASK_OPERATION, STATUS_BUSY, STATUS_FAILED, STATUS_SCHEDULED, STATUS_SUCCESS } from '../lib/constants';
 import { createDeltaSyncTask } from '../lib/delta-sync-task';
@@ -17,7 +18,7 @@ import * as fetch from 'node-fetch';
 export async function startInitialSync() {
   try {
     console.info(`DISABLE_INITIAL_SYNC: ${DISABLE_INITIAL_SYNC}`);
-    if(!DISABLE_INITIAL_SYNC) {
+    if (!DISABLE_INITIAL_SYNC) {
       const initialSyncJob = await getLatestJobForOperation(INITIAL_SYNC_JOB_OPERATION, JOB_CREATOR_URI);
       // In following case we can safely (re)schedule an initial sync
       if (!initialSyncJob || initialSyncJob.status == STATUS_FAILED) {
@@ -27,7 +28,7 @@ export async function startInitialSync() {
         const job = await runInitialSync();
 
         console.log(`Initial sync ${job} has been successfully run`);
-      } else if (initialSyncJob.status !== STATUS_SUCCESS){
+      } else if (initialSyncJob.status !== STATUS_SUCCESS) {
         throw `Unexpected status for ${initialSyncJob.job}: ${initialSyncJob.status}. Check in the database what went wrong`;
       } else {
         console.log(`Initial sync <${initialSyncJob.job}> has already run.`);
@@ -36,7 +37,7 @@ export async function startInitialSync() {
       console.warn('Initial sync disabled');
     }
   }
-  catch(e) {
+  catch (e) {
     console.log(e);
     await createError(JOBS_GRAPH, SERVICE_NAME, `Unexpected error while running initial sync: ${e}`);
   }
@@ -57,9 +58,9 @@ async function runInitialSync() {
       await updateStatus(task, STATUS_BUSY);
       await dumpFile.loadAndDispatch(initialSyncDispatching.dispatch);
 
-      if(initialSyncDispatching.onFinishInitialIngest) {
+      if (initialSyncDispatching.onFinishInitialIngest) {
         console.log('Found onFinishInitialIngest, calling.');
-        await initialSyncDispatching.onFinishInitialIngest({ mu, muAuthSudo, fetch });
+        await initialSyncDispatching.onFinishInitialIngest({ mu, muAuthSudo, fetch }, { LANDING_ZONE_GRAPH, LANDING_ZONE_DATABASE_ENDPOINT });
       }
       await updateStatus(task, STATUS_SUCCESS);
     } else {
@@ -75,12 +76,12 @@ async function runInitialSync() {
 
     return job;
   }
-  catch(e) {
+  catch (e) {
     console.log(`Something went wrong while doing the initial sync. Closing task with failure state.`);
     console.trace(e);
-    if(task)
+    if (task)
       await updateStatus(task, STATUS_FAILED);
-    if(job){
+    if (job) {
       await createJobError(JOBS_GRAPH, job, e);
       await updateStatus(job, STATUS_FAILED);
     }
