@@ -4,7 +4,7 @@ import fetcher from '../lib/fetcher';
 import {
   DELTA_SYNC_JOB_OPERATION, DISABLE_DELTA_INGEST, INITIAL_SYNC_JOB_OPERATION,
   JOBS_GRAPH, JOB_CREATOR_URI, SERVICE_NAME, SYNC_FILES_ENDPOINT, WAIT_FOR_INITIAL_SYNC,
-  ENABLE_DELTA_CONTEXT
+  ENABLE_DELTA_CONTEXT, LANDING_ZONE_GRAPH, LANDING_ZONE_DATABASE_ENDPOINT
 } from '../config';
 import { STATUS_BUSY, STATUS_FAILED, STATUS_SUCCESS } from '../lib/constants';
 import DeltaFile from '../lib/delta-file';
@@ -62,6 +62,8 @@ async function runDeltaSync() {
     const latestDeltaTimestamp = await calculateLatestDeltaTimestamp();
     const sortedDeltafiles = await getSortedUnconsumedFiles(latestDeltaTimestamp);
 
+    const constants = { LANDING_ZONE_GRAPH, LANDING_ZONE_DATABASE_ENDPOINT };
+
     if (sortedDeltafiles.length) {
       job = await createJob(JOBS_GRAPH, DELTA_SYNC_JOB_OPERATION, JOB_CREATOR_URI, STATUS_BUSY);
 
@@ -74,10 +76,10 @@ async function runDeltaSync() {
             const { termObjectChangeSets, termObjectChangeSetsWithContext } = await deltaFile.load();
             console.log(`Dispatching ${termObjectChangeSets.length} term object change sets`
               + ` and ${termObjectChangeSetsWithContext.length} term object change sets with context`)
-            await deltaSyncDispatching.dispatch({ mu, muAuthSudo, fetch }, { termObjectChangeSets, termObjectChangeSetsWithContext });
+            await deltaSyncDispatching.dispatch({ mu, muAuthSudo, fetch }, { termObjectChangeSets, termObjectChangeSetsWithContext }, constants);
           } else {
             const termObjectChangeSets = await deltaFile.load();
-            await deltaSyncDispatching.dispatch({ mu, muAuthSudo, fetch }, { termObjectChangeSets });
+            await deltaSyncDispatching.dispatch({ mu, muAuthSudo, fetch }, { termObjectChangeSets }, constants);
           }
 
           await updateStatus(task, STATUS_SUCCESS);

@@ -10,15 +10,15 @@ export const DISABLE_INITIAL_SYNC = process.env.DCR_DISABLE_INITIAL_SYNC == 'tru
 export const WAIT_FOR_INITIAL_SYNC = process.env.DCR_WAIT_FOR_INITIAL_SYNC == 'false' ? false : true;
 export const DUMPFILE_FOLDER = process.env.DCR_DUMPFILE_FOLDER || 'consumer/deltas';
 export const CRON_PATTERN_DELTA_SYNC = process.env.DCR_CRON_PATTERN_DELTA_SYNC || '0 * * * * *'; // every minute
-export const ENABLE_DELTA_CONTEXT = process.env.DCR_ENABLE_DELTA_CONTEXT == 'true' ? true : false;
 
 // GRAPHS
 export const JOBS_GRAPH = process.env.JOBS_GRAPH || 'http://mu.semte.ch/graphs/system/jobs';
-export const DCR_LANDING_ZONE_GRAPH = process.env.DCR_LANDING_ZONE_GRAPH || `http://mu.semte.ch/graphs/public`;
 
-// ENDPOINTS
-export const DCR_LANDING_ZONE_DATABASE = process.env.DCR_LANDING_ZONE_DATABASE || 'database';
-export const DCR_LANDING_ZONE_DATABASE_ENDPOINT = process.env.DCR_LANDING_ZONE_DATABASE_ENDPOINT || `http://${DCR_LANDING_ZONE_DATABASE}:8890/sparql`;
+// DELTA CONTEXT AND LANDING ZONES
+export const ENABLE_DELTA_CONTEXT = process.env.DCR_ENABLE_DELTA_CONTEXT == 'true' ? true : false;
+export const LANDING_ZONE_GRAPH = process.env.DCR_LANDING_ZONE_GRAPH || `http://mu.semte.ch/graphs/system/landingzone`;
+export const LANDING_ZONE_DATABASE = process.env.DCR_LANDING_ZONE_DATABASE || 'database';
+export const LANDING_ZONE_DATABASE_ENDPOINT = process.env.DCR_LANDING_ZONE_DATABASE_ENDPOINT || `http://${DCR_LANDING_ZONE_DATABASE}:8890/sparql`;
 
 // MANDATORY SIMPLE
 if (!process.env.DCR_SYNC_BASE_URL)
