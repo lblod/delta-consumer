@@ -74,8 +74,10 @@ async function runDeltaSync() {
         try {
           if (ENABLE_DELTA_CONTEXT) {
             const { termObjectChangeSets, termObjectChangeSetsWithContext } = await deltaFile.load();
-            console.log(`Dispatching ${termObjectChangeSets.length} term object change sets`
-              + ` and ${termObjectChangeSetsWithContext.length} term object change sets with context`)
+            console.log(`
+              Dispatching ${termObjectChangeSets.length} term object change sets`
+                        + ` and ${termObjectChangeSetsWithContext.length} term object change sets with context
+            `);
             await deltaSyncDispatching.dispatch({ mu, muAuthSudo, fetch }, { termObjectChangeSets, termObjectChangeSetsWithContext }, constants);
           } else {
             const termObjectChangeSets = await deltaFile.load();
