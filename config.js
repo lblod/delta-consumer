@@ -18,7 +18,7 @@ export const JOBS_GRAPH = process.env.JOBS_GRAPH || 'http://mu.semte.ch/graphs/s
 export const ENABLE_DELTA_CONTEXT = process.env.DCR_ENABLE_DELTA_CONTEXT == 'true' ? true : false;
 export const LANDING_ZONE_GRAPH = process.env.DCR_LANDING_ZONE_GRAPH || `http://mu.semte.ch/graphs/system/landingzone`;
 export const LANDING_ZONE_DATABASE = process.env.DCR_LANDING_ZONE_DATABASE || 'database';
-export const LANDING_ZONE_DATABASE_ENDPOINT = process.env.DCR_LANDING_ZONE_DATABASE_ENDPOINT || `http://${DCR_LANDING_ZONE_DATABASE}:8890/sparql`;
+export const LANDING_ZONE_DATABASE_ENDPOINT = process.env.DCR_LANDING_ZONE_DATABASE_ENDPOINT || `http://${LANDING_ZONE_DATABASE}:8890/sparql`;
 
 // MANDATORY SIMPLE
 if (!process.env.DCR_SYNC_BASE_URL)
