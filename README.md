@@ -44,7 +44,7 @@ consumer:
   image: lblod/delta-consumer
   environment:
     DCR_SERVICE_NAME: 'your-custom-consumer-identifier' # replace with the desired consumer identifier
-    DCR_SYNC_BASE_URL: 'http://base-sync-url # replace with link the application hosting the producer server
+    DCR_SYNC_BASE_URL: 'http://base-sync-url' # replace with link the application hosting the producer server
     DCR_SYNC_DATASET_SUBJECT: "http://data.lblod.info/datasets/delta-producer/dumps/CacheGraphDump"
     DCR_INITIAL_SYNC_JOB_OPERATION: "http://redpencil.data.gift/id/jobs/concept/JobOperation/deltas/consumer/xyzInitialSync"
     DCR_DELTA_SYNC_JOB_OPERATION: "http://redpencil.data.gift/id/jobs/concept/JobOperation/deltas/consumer/xyzDeltaFileSyncing"
