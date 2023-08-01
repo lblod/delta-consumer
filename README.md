@@ -184,6 +184,11 @@ The following environment variables are optional:
 - `DCR_WAIT_FOR_INITIAL_SYNC (default: true)`: flag to not wait for initial ingestion (meant for debugging)
 - `DCR_KEEP_DELTA_FILES (default: false)`: if you want to keep the downloaded delta-files (ease of troubleshooting)
 
+The following environment variables are optional and only necessary if the delta-producer-publication-graph-maintainer requires authentication:
+
+- `DCR_SYNC_LOGIN_ENDPOINT`: the login endpoint as full url
+- `DCR_SECRET_KEY`: the login key
+
 Delta context variables:
 
 - `DCR_ENABLE_DELTA_CONTEXT (default: false)`
