@@ -19,7 +19,7 @@ However, custom ingestion rules are perfectly possible. Read along if you want t
 
 :warning: This feature might be subject to non backward compatible changes in the future.
 
-The content of a delta message is not alwys sufficient to know how to process the delta.
+The content of a delta message is not always sufficient to know how to process the delta.
 
 e.g. it could contain information such as insert `<something> skos:prefLabel "foo"`.
 The action needed for this might depend on the `rdf:type` of the subject. Or require information to e.g. create a new label.
