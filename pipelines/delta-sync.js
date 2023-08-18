@@ -15,6 +15,7 @@ import { createJob, failJob, getJobs, getLatestJobForOperation } from '../lib/jo
 import { updateStatus } from '../lib/utils';
 import { deltaSyncDispatching } from '../triples-dispatching';
 import * as fetch from 'node-fetch';
+import { chunk } from 'lodash';
 
 export async function startDeltaSync() {
   try {
@@ -76,12 +77,12 @@ async function runDeltaSync() {
             const { termObjectChangeSets, termObjectChangeSetsWithContext } = await deltaFile.load();
             console.log(`
               Dispatching ${termObjectChangeSets.length} term object change sets`
-                        + ` and ${termObjectChangeSetsWithContext.length} term object change sets with context
+              + ` and ${termObjectChangeSetsWithContext.length} term object change sets with context
             `);
-            await deltaSyncDispatching.dispatch({ mu, muAuthSudo, fetch }, { termObjectChangeSets, termObjectChangeSetsWithContext }, constants);
+            await deltaSyncDispatching.dispatch({ mu, muAuthSudo, fetch, chunk, sparqlEscapeUri: mu.sparqlEscapeUri }, { termObjectChangeSets, termObjectChangeSetsWithContext }, constants);
           } else {
             const termObjectChangeSets = await deltaFile.load();
-            await deltaSyncDispatching.dispatch({ mu, muAuthSudo, fetch }, { termObjectChangeSets }, constants);
+            await deltaSyncDispatching.dispatch({ mu, muAuthSudo, fetch, chunk, sparqlEscapeUri: mu.sparqlEscapeUri }, { termObjectChangeSets }, constants);
           }
 
           await updateStatus(task, STATUS_SUCCESS);

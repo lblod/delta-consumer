@@ -1,13 +1,13 @@
-const { BYPASS_MU_AUTH_FOR_EXPENSIVE_QUERIES,
-        DIRECT_DATABASE_ENDPOINT,
-        MU_CALL_SCOPE_ID_INITIAL_SYNC,
-        BATCH_SIZE,
-        MAX_DB_RETRY_ATTEMPTS,
-        SLEEP_BETWEEN_BATCHES,
-        SLEEP_TIME_AFTER_FAILED_DB_OPERATION,
-        INGEST_GRAPH
-      } = require('./config');
-const { batchedDbUpdate } = require('./utils');
+import { batchedUpdate } from './utils';
+import {
+  BYPASS_MU_AUTH_FOR_EXPENSIVE_QUERIES,
+  DIRECT_DATABASE_ENDPOINT,
+  MU_CALL_SCOPE_ID_INITIAL_SYNC,
+  BATCH_SIZE,
+  SLEEP_BETWEEN_BATCHES,
+  INGEST_GRAPH
+} from './config';
+
 const endpoint = BYPASS_MU_AUTH_FOR_EXPENSIVE_QUERIES ? DIRECT_DATABASE_ENDPOINT : process.env.MU_SPARQL_ENDPOINT;
 
 /**
@@ -23,26 +23,25 @@ const endpoint = BYPASS_MU_AUTH_FOR_EXPENSIVE_QUERIES ? DIRECT_DATABASE_ENDPOINT
  *         ]
  * @return {void} Nothing
  */
-async function dispatch(lib, data){
-  const { mu, muAuthSudo } = lib;
+async function dispatch(lib, data) {
+  const { mu, } = lib;
 
   const triples = data.termObjects.map(o => `${o.subject} ${o.predicate} ${o.object}.`);
 
-  if(BYPASS_MU_AUTH_FOR_EXPENSIVE_QUERIES){
+  if (BYPASS_MU_AUTH_FOR_EXPENSIVE_QUERIES) {
     console.warn(`Service configured to skip MU_AUTH!`);
   }
   console.log(`Using ${endpoint} to insert triples`);
 
-  await batchedDbUpdate(
-    muAuthSudo.updateSudo,
-    INGEST_GRAPH,
+  await batchedUpdate(
+    lib,
     triples,
+    INGEST_GRAPH,
+    SLEEP_BETWEEN_BATCHES,
+    BATCH_SIZE,
     { 'mu-call-scope-id': MU_CALL_SCOPE_ID_INITIAL_SYNC },
     endpoint,
-    BATCH_SIZE,
-    MAX_DB_RETRY_ATTEMPTS,
-    SLEEP_BETWEEN_BATCHES,
-    SLEEP_TIME_AFTER_FAILED_DB_OPERATION
+    'INSERT'
   );
 }
 

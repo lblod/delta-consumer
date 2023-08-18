@@ -14,7 +14,7 @@ import { initialSyncDispatching } from '../triples-dispatching';
 import * as muAuthSudo from '@lblod/mu-auth-sudo';
 import * as mu from 'mu';
 import * as fetch from 'node-fetch';
-
+import { chunk } from 'lodash';
 export async function startInitialSync() {
   try {
     console.info(`DISABLE_INITIAL_SYNC: ${DISABLE_INITIAL_SYNC}`);
@@ -60,7 +60,7 @@ async function runInitialSync() {
 
       if (initialSyncDispatching.onFinishInitialIngest) {
         console.log('Found onFinishInitialIngest, calling.');
-        await initialSyncDispatching.onFinishInitialIngest({ mu, muAuthSudo, fetch }, { LANDING_ZONE_GRAPH, LANDING_ZONE_DATABASE_ENDPOINT });
+        await initialSyncDispatching.onFinishInitialIngest({ mu, muAuthSudo, fetch, chunk, sparqlEscapeUri: mu.sparqlEscapeUri }, { LANDING_ZONE_GRAPH, LANDING_ZONE_DATABASE_ENDPOINT });
       }
       await updateStatus(task, STATUS_SUCCESS);
     } else {
