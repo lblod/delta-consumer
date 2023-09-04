@@ -11,7 +11,7 @@ export const WAIT_FOR_INITIAL_SYNC = process.env.DCR_WAIT_FOR_INITIAL_SYNC == 'f
 export const DUMPFILE_FOLDER = process.env.DCR_DUMPFILE_FOLDER || 'consumer/deltas';
 export const CRON_PATTERN_DELTA_SYNC = process.env.DCR_CRON_PATTERN_DELTA_SYNC || '0 * * * * *'; // every minute
 export const DELTA_JOBS_RETENTION_PERIOD = parseInt(process.env.DCR_DELTA_JOBS_RETENTION_PERIOD || -1);
-export const CRON_PATTERN_DELTA_CLEANUP = process.env.DCR_CRON_PATTERN_DELTA_SYNC || '0 0 * * * *'; // every hour
+export const CRON_PATTERN_DELTA_CLEANUP = process.env.DCR_CRON_PATTERN_DELTA_CLEANUP || '0 0 * * * *'; // every hour
 // GRAPHS
 export const JOBS_GRAPH = process.env.JOBS_GRAPH || 'http://mu.semte.ch/graphs/system/jobs';
 
