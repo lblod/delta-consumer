@@ -14,9 +14,10 @@ import {
 import { waitForDatabase } from './lib/database';
 import { ProcessingQueue } from './lib/processing-queue';
 import { cleanupJob, getJobs } from './lib/job';
+import { deleteDeltaFilesForJob } from './lib/utils';
 import { startDeltaSync } from './pipelines/delta-sync';
 import { startInitialSync } from './pipelines/initial-sync';
-import {startDeltaCleanup} from "./pipelines/delta-cleanup";
+import { startDeltaCleanup } from "./pipelines/delta-cleanup";
 
 
 const deltaSyncQueue = new ProcessingQueue('delta-sync-queue');
@@ -36,7 +37,7 @@ new CronJob(CRON_PATTERN_DELTA_SYNC, async function() {
 new CronJob(CRON_PATTERN_DELTA_CLEANUP, async function() {
   const now = new Date().toISOString();
   console.info(`Delta cleanup triggered by cron job at ${now}`);
-  await startDeltaCleanup();
+  deltaSyncQueue.addJob(startDeltaCleanup);
 }, null, true);
 
 /*
@@ -91,6 +92,7 @@ app.post('/flush', async function( _, res ){
     const initialSyncJobs = await getJobs(INITIAL_SYNC_JOB_OPERATION);
     const syncJobs = await getJobs(DELTA_SYNC_JOB_OPERATION);
     for(const { job } of [ ...initialSyncJobs, ...syncJobs ]) {
+      await deleteDeltaFilesForJob(job);
       await cleanupJob(job);
     }
     if(ENABLE_DELTA_CONTEXT) {
