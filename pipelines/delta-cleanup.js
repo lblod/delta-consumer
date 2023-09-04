@@ -36,7 +36,7 @@ export async function startDeltaCleanup() {
 
       for(const job of jobsToClean) {
         await deleteDeltaFilesForJob(job);
-        await cleanupJob(job);
+        await cleanupJob(job.job);
       }
     }
   }

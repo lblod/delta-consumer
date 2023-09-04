@@ -91,9 +91,9 @@ app.post('/flush', async function( _, res ){
   try {
     const initialSyncJobs = await getJobs(INITIAL_SYNC_JOB_OPERATION);
     const syncJobs = await getJobs(DELTA_SYNC_JOB_OPERATION);
-    for(const { job } of [ ...initialSyncJobs, ...syncJobs ]) {
+    for(const job of [ ...initialSyncJobs, ...syncJobs ]) {
       await deleteDeltaFilesForJob(job);
-      await cleanupJob(job);
+      await cleanupJob(job.job);
     }
     if(ENABLE_DELTA_CONTEXT) {
       console.log(`Flushing LANDING_ZONE data`);
