@@ -115,7 +115,9 @@ async function runDeltaSync() {
 
 async function getSortedUnconsumedFiles(since) {
   try {
-    const response = await fetcher(`${SYNC_FILES_ENDPOINT}?since=${since.toISOString()}`, {
+    const urlToCall = `${SYNC_FILES_ENDPOINT}?since=${since.toISOString()}`;
+    console.log(`Fetching delta files with url: ${urlToCall}`);
+    const response = await fetcher(urlToCall, {
       headers: {
         'Accept': 'application/vnd.api+json'
       }
