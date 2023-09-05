@@ -8,13 +8,16 @@ import {
   DELTA_SYNC_JOB_OPERATION,
   ENABLE_DELTA_CONTEXT,
   LANDING_ZONE_GRAPH,
-  LANDING_ZONE_DATABASE_ENDPOINT
+  LANDING_ZONE_DATABASE_ENDPOINT,
+  CRON_PATTERN_DELTA_CLEANUP
 } from './config';
 import { waitForDatabase } from './lib/database';
 import { ProcessingQueue } from './lib/processing-queue';
 import { cleanupJob, getJobs } from './lib/job';
+import { deleteDeltaFilesForJob } from './lib/utils';
 import { startDeltaSync } from './pipelines/delta-sync';
 import { startInitialSync } from './pipelines/initial-sync';
+import { startDeltaCleanup } from "./pipelines/delta-cleanup";
 
 
 const deltaSyncQueue = new ProcessingQueue('delta-sync-queue');
@@ -29,6 +32,12 @@ new CronJob(CRON_PATTERN_DELTA_SYNC, async function() {
   const now = new Date().toISOString();
   console.info(`Delta sync triggered by cron job at ${now}`);
   deltaSyncQueue.addJob(startDeltaSync);
+}, null, true);
+
+new CronJob(CRON_PATTERN_DELTA_CLEANUP, async function() {
+  const now = new Date().toISOString();
+  console.info(`Delta cleanup triggered by cron job at ${now}`);
+  deltaSyncQueue.addJob(startDeltaCleanup);
 }, null, true);
 
 /*
@@ -51,6 +60,11 @@ app.delete('/initial-sync-jobs', async function( _, res ){
 app.post('/delta-sync-jobs', async function( _, res ){
   startDeltaSync();
   res.send({ msg: 'Started delta sync job' });
+});
+
+app.post('/delta-cleanup-jobs', async function( _, res ){
+  startDeltaCleanup();
+  res.send({ msg: 'Started delta cleanup job' });
 });
 
 app.post('/flush', async function( _, res ){
@@ -77,8 +91,9 @@ app.post('/flush', async function( _, res ){
   try {
     const initialSyncJobs = await getJobs(INITIAL_SYNC_JOB_OPERATION);
     const syncJobs = await getJobs(DELTA_SYNC_JOB_OPERATION);
-    for(const { job } of [ ...initialSyncJobs, ...syncJobs ]) {
-      await cleanupJob(job);
+    for(const job of [ ...initialSyncJobs, ...syncJobs ]) {
+      await deleteDeltaFilesForJob(job);
+      await cleanupJob(job.job);
     }
     if(ENABLE_DELTA_CONTEXT) {
       console.log(`Flushing LANDING_ZONE data`);

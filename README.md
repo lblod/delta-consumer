@@ -183,6 +183,8 @@ The following environment variables are optional:
 - `DCR_DISABLE_DELTA_INGEST (default: false)`: flag to disable data ingestion, for example, while initializing the sync
 - `DCR_WAIT_FOR_INITIAL_SYNC (default: true)`: flag to not wait for initial ingestion (meant for debugging)
 - `DCR_KEEP_DELTA_FILES (default: false)`: if you want to keep the downloaded delta-files (ease of troubleshooting)
+- `DCR_DELTA_JOBS_RETENTION_PERIOD (default: -1)`: number of days to keep delta files, a value of -1 means all files will be retained.
+- `DCR_CRON_PATTERN_DELTA_CLEANUP (default: 0 0 * * * *)`: cron pattern at which the consumer needs to clean up data automatically.
 
 The following environment variables are optional and only necessary if the delta-producer-publication-graph-maintainer requires authentication:
 
