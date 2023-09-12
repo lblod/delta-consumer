@@ -1,5 +1,5 @@
 import { sparqlEscapeUri, sparqlEscapeString } from 'mu';
-import { Quad, Literal, Resource } from './types';
+import { Quad, Literal, Resource, ChangeSet } from './types';
 import { updateSudo as update } from '@lblod/mu-auth-sudo';
 
 export function toSparqlTerm(thing: Literal | Resource): string {
