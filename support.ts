@@ -44,20 +44,44 @@ export async function downloadShareLinks(inserts: Quad[]) {
     await downloadFile(shareLink);
 }
 
+export function groupQuadsByGraph(quads: Quad[]): { graph: Resource, quads: Quad[] }[] {
+  let graphMap = new Map<string, Quad[]>();
+
+  for (let quad of quads) {
+    const graph = quad.graph;
+
+    if (!graphMap.has(graph.value))
+      graphMap.set(graph.value, []);
+
+    graphMap.get(graph.value).push(quad);
+  }
+  return Array.from(graphMap.entries())
+    .map(([graphUri, quads]): { graph: Resource, quads: Quad[] } => ({
+      graph: { value: graphUri, type: 'uri' },
+      quads
+    }));
+}
+
 // TODO: This can be more intelligent
 export async function moveTriples(changesets: ChangeSet[]) {
   for (const { inserts, deletes } of changesets) {
-    if (inserts.length)
-      await update(`INSERT DATA {
-          GRAPH <http://mu.semte.ch/graphs/private> {
-            ${inserts.map(toSparqlTriple).join("\n")}
-          }
-        }`);
-    if (deletes.length)
-      await update(`DELETE DATA {
-          GRAPH <http://mu.semte.ch/graphs/private> {
-            ${deletes.map(toSparqlTriple).join("\n")}
-          }
-        }`);
+    if (deletes.length) {
+      for (let { graph, quads } of groupQuadsByGraph(deletes)) {
+        await update(`DELETE DATA {
+            GRAPH ${toSparqlTerm(graph)} {
+              ${quads.map(toSparqlTriple).join("\n")}
+            }
+          }`);
+      }
+    }
+    if (inserts.length) {
+      for (let { graph, quads } of groupQuadsByGraph(inserts)) {
+        await update(`INSERT DATA {
+            GRAPH ${toSparqlTerm(graph)} {
+              ${quads.map(toSparqlTriple).join("\n")}
+            }
+          }`);
+      }
+    }
   }
 }
