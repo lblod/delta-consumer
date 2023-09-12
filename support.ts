@@ -7,7 +7,7 @@ import { updateSudo as update } from '@lblod/mu-auth-sudo';
 import { SYNC_FILESHARE_ENDPOINT } from './cfg';
 
 export function toSparqlTerm(thing: Literal | Resource): string {
-  if( thing.type == "uri" )
+  if (thing.type == "uri")
     return sparqlEscapeUri(thing.value);
   else if (thing.lang)
     // TODO: Switch to template implementation once that exists
