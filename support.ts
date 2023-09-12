@@ -1,6 +1,10 @@
+import fs from 'fs-extra';
+import { Response } from 'node-fetch';
+import fetcher from './lib/fetcher';
 import { sparqlEscapeUri, sparqlEscapeString } from 'mu';
 import { Quad, Literal, Resource, ChangeSet } from './types';
 import { updateSudo as update } from '@lblod/mu-auth-sudo';
+import { SYNC_FILESHARE_ENDPOINT } from './cfg';
 
 export function toSparqlTerm(thing: Literal | Resource): string {
   if( thing.type == "uri" )
@@ -18,8 +22,18 @@ export function toSparqlTriple(quad: Quad): string {
   return `${toSparqlTerm(quad.subject)} ${toSparqlTerm(quad.predicate)} ${toSparqlTerm(quad.object)}.`;
 }
 
-export async function downloadFile(uri) {
-  console.error("We can't download files yet");
+export async function downloadFile(uri: string) {
+  const downloadUrl = `${SYNC_FILESHARE_ENDPOINT}?uri=${uri}`;
+  const filePath = uri.replace('share://', '/share/');
+
+  console.log(`Downloading file ${uri} from ${downloadUrl}`);
+  const response = await fetcher(downloadUrl)
+  if (response.ok) {
+    const buffer = await response.buffer();
+    fs.writeFileSync(filePath, buffer);
+  } else {
+    console.error(`Failed to download file ${uri} (${response.status})`);
+  }
 }
 
 export function isShareUri(uri: String) {
@@ -27,7 +41,7 @@ export function isShareUri(uri: String) {
 }
 
 export async function downloadShareLinks(inserts: Quad[]) {
-  const shareLinks = new Set();
+  const shareLinks = new Set<string>();
 
   inserts
     .map((i) => i.subject.value)
