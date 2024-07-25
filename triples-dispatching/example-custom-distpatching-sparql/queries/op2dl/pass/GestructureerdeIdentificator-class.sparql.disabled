@@ -1,0 +1,7 @@
+
+    CONSTRUCT {
+      ?s a <https://data.vlaanderen.be/ns/generiek#GestructureerdeIdentificator> .
+    }  
+    WHERE {
+      ?s a <https://data.vlaanderen.be/ns/generiek#GestructureerdeIdentificator> .
+    }

@@ -1,0 +1,7 @@
+
+    CONSTRUCT {
+      ?s a <http://data.lblod.info/vocabularies/erediensten/BetrokkenLokaleBesturen> .
+    }  
+    WHERE {
+      ?s a <http://data.lblod.info/vocabularies/erediensten/BetrokkenLokaleBesturen> .
+    }

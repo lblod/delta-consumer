@@ -1,0 +1,7 @@
+
+    CONSTRUCT {
+      ?s a <http://lblod.data.gift/vocabularies/organisatie/Veranderingsgebeurtenis> .
+    }  
+    WHERE {
+      ?s a <http://lblod.data.gift/vocabularies/organisatie/Veranderingsgebeurtenis> .
+    }

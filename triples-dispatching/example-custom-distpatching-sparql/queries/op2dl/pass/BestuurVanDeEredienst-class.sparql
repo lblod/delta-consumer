@@ -1,0 +1,7 @@
+
+    CONSTRUCT {
+      ?s a <http://data.lblod.info/vocabularies/erediensten/BestuurVanDeEredienst> .
+    }  
+    WHERE {
+      ?s a <http://data.lblod.info/vocabularies/erediensten/BestuurVanDeEredienst> .
+    }

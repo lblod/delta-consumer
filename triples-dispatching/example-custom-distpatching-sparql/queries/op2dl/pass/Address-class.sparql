@@ -1,0 +1,7 @@
+
+    CONSTRUCT {
+      ?s a <http://www.w3.org/ns/locn#Address> .
+    }  
+    WHERE {
+      ?s a <http://www.w3.org/ns/locn#Address> .
+    }

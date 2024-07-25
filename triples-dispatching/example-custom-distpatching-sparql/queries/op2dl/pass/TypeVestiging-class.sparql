@@ -1,0 +1,7 @@
+
+    CONSTRUCT {
+      ?s a <http://lblod.data.gift/vocabularies/organisatie/TypeVestiging> .
+    }  
+    WHERE {
+      ?s a <http://lblod.data.gift/vocabularies/organisatie/TypeVestiging> .
+    }

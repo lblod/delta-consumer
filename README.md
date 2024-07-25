@@ -54,6 +54,16 @@ When a delete comes in, which breaks the where part of a query - the whole const
   - The CONSTRUCT part of the matching query
   - Matching variables are bound to values in the WHERE clause.
 
+#TODO:
+
+- overlap/interference of queries
+- example: replacement
+- example: addition
+- where: data source vocabulary/model. construct target app voc/model
+- pass through of types and properties, with filter not in.
+- .disabled files
+- scripts to assist config generation
+
 ## Tutorials
 
 ### Add the service to a stack, with default behaviour.

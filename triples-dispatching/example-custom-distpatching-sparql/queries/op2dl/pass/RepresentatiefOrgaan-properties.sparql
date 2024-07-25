@@ -1,0 +1,10 @@
+
+    CONSTRUCT {
+      ?s ?p ?o .
+    }  
+    WHERE {
+      ?s a <http://data.lblod.info/vocabularies/erediensten/RepresentatiefOrgaan> ;
+         ?p ?o .
+      FILTER (?p NOT IN (<http://www.w3.org/ns/adms#identifier>, <http://www.w3.org/ns/org#classification>))
+    }
+  

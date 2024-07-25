@@ -1,0 +1,9 @@
+
+    CONSTRUCT {
+      ?s ?p ?o .
+    }  
+    WHERE {
+      ?s a <http://www.w3.org/2004/02/skos/core#Concept> ;
+         ?p ?o .
+    }
+  

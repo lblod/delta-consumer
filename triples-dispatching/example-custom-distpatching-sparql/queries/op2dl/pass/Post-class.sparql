@@ -1,0 +1,7 @@
+
+    CONSTRUCT {
+      ?s a <http://www.w3.org/ns/org#Post> .
+    }  
+    WHERE {
+      ?s a <http://www.w3.org/ns/org#Post> .
+    }

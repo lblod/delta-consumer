@@ -1,0 +1,7 @@
+
+    CONSTRUCT {
+      ?s a <http://mu.semte.ch/vocabularies/ext/OrganizationClassificationCode> .
+    }  
+    WHERE {
+      ?s a <http://mu.semte.ch/vocabularies/ext/OrganizationClassificationCode> .
+    }

@@ -1,0 +1,8 @@
+
+    CONSTRUCT {
+      ?s <http://data.vlaanderen.be/ns/persoon#heeftBurgerlijkeStaat> ?o .
+    }
+    WHERE {
+      ?s <https://data.vlaanderen.be/ns/persoon#heeftBurgerlijkeStaat> ?o .
+    }
+  

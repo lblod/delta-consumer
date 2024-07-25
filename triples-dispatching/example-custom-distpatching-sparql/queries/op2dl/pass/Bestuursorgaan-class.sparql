@@ -1,0 +1,7 @@
+
+    CONSTRUCT {
+      ?s a <http://data.vlaanderen.be/ns/besluit#Bestuursorgaan> .
+    }  
+    WHERE {
+      ?s a <http://data.vlaanderen.be/ns/besluit#Bestuursorgaan> .
+    }

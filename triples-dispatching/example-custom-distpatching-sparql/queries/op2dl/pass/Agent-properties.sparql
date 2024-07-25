@@ -1,0 +1,10 @@
+
+    CONSTRUCT {
+      ?s ?p ?o .
+    }  
+    WHERE {
+      ?s a <http://purl.org/dc/terms/Agent> ;
+         ?p ?o .
+      FILTER (?p NOT IN (<http://www.w3.org/ns/adms#identifier>, <http://www.w3.org/ns/org#classification>))
+    }
+  
