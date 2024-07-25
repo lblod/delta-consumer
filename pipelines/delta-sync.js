@@ -2,9 +2,18 @@ import * as muAuthSudo from '@lblod/mu-auth-sudo';
 import * as mu from 'mu';
 import fetcher from '../lib/fetcher';
 import {
-  DELTA_SYNC_JOB_OPERATION, DISABLE_DELTA_INGEST, INITIAL_SYNC_JOB_OPERATION,
-  JOBS_GRAPH, JOB_CREATOR_URI, SERVICE_NAME, SYNC_FILES_ENDPOINT, WAIT_FOR_INITIAL_SYNC,
-  ENABLE_DELTA_CONTEXT, LANDING_ZONE_GRAPH, LANDING_ZONE_DATABASE_ENDPOINT
+  DELTA_SYNC_JOB_OPERATION,
+  DISABLE_DELTA_INGEST,
+  INITIAL_SYNC_JOB_OPERATION,
+  JOBS_GRAPH,
+  JOB_CREATOR_URI,
+  SERVICE_NAME,
+  SYNC_FILES_ENDPOINT,
+  WAIT_FOR_INITIAL_SYNC,
+  ENABLE_DELTA_CONTEXT,
+  ENABLE_SPARQL_MAPPING,
+  LANDING_ZONE_GRAPH,
+  LANDING_ZONE_DATABASE_ENDPOINT,
 } from '../config';
 import { STATUS_BUSY, STATUS_FAILED, STATUS_SUCCESS } from '../lib/constants';
 import DeltaFile from '../lib/delta-file';
@@ -16,6 +25,7 @@ import { updateStatus } from '../lib/utils';
 import { deltaSyncDispatching } from '../triples-dispatching';
 import * as fetch from 'node-fetch';
 import { chunk } from 'lodash';
+import { synchronizedDeltaProcessing } from '../lib/delta-sparql-mapping.js';
 
 export async function startDeltaSync() {
   try {
@@ -74,12 +84,21 @@ async function runDeltaSync() {
         const task = await createDeltaSyncTask(JOBS_GRAPH, job, `${index}`, STATUS_BUSY, deltaFile, parentTask);
         try {
           if (ENABLE_DELTA_CONTEXT) {
-            const { termObjectChangeSets, termObjectChangeSetsWithContext } = await deltaFile.load();
-            console.log(`
-              Dispatching ${termObjectChangeSets.length} term object change sets`
-              + ` and ${termObjectChangeSetsWithContext.length} term object change sets with context
-            `);
-            await deltaSyncDispatching.dispatch({ mu, muAuthSudo, fetch, chunk, sparqlEscapeUri: mu.sparqlEscapeUri }, { termObjectChangeSets, termObjectChangeSetsWithContext }, constants);
+          } else if (ENABLE_SPARQL_MAPPING) {
+            const { termObjectChangeSets, changeSets } = await deltaFile.load();
+            await synchronizedDeltaProcessing(changeSets);
+            // To be discussed: keep the custom dispatching when mapping is enabled
+            await deltaSyncDispatching.dispatch(
+              {
+                mu,
+                muAuthSudo,
+                fetch,
+                chunk,
+                sparqlEscapeUri: mu.sparqlEscapeUri,
+              },
+              { termObjectChangeSets },
+              constants,
+            );
           } else {
             const termObjectChangeSets = await deltaFile.load();
             await deltaSyncDispatching.dispatch({ mu, muAuthSudo, fetch, chunk, sparqlEscapeUri: mu.sparqlEscapeUri }, { termObjectChangeSets }, constants);

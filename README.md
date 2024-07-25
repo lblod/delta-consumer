@@ -30,6 +30,30 @@ The context is configured through `delta-context-config.js` which is covered in 
 
 The `DCR_LANDING_ZONE_GRAPH` is maintained by the delta-producer when this feature is and contains all the triples from the data-sources producer graph - without any filtering or other changes. This graph is used to lookup context and can be offloaded to a different triplestore than the main application database by providing the `DCR_LANDING_ZONE_DATABASE` environment variable.
 
+### Delta Message - SPARQL mapping
+
+The delta-consumer provides a way to map the incoming messages to a different model. This is done by providing a SPARQL queries in the configuration directory. The queries are executed on the landing zone graph and the results are used to update target graph.
+
+Each triple from the delta message is treated individually.
+
+#### Delete
+
+When a delete comes in, which breaks the where part of a query - the whole construct clause is deleted from the target graph.
+
+- Match queries for statement
+- Delete resulting triple(s) from target graph.
+  - The CONSTRUCT part of the matching query
+  - Matching variables are bound to values in the WHERE clause.
+- Delete the original triple from the landing zone
+
+#### Insert
+
+- Insert the original triple in the landing zone
+- Match queries for statement
+- Insert resulting triples into target graph
+  - The CONSTRUCT part of the matching query
+  - Matching variables are bound to values in the WHERE clause.
+
 ## Tutorials
 
 ### Add the service to a stack, with default behaviour.
@@ -45,10 +69,10 @@ consumer:
   environment:
     DCR_SERVICE_NAME: 'your-custom-consumer-identifier' # replace with the desired consumer identifier
     DCR_SYNC_BASE_URL: 'http://base-sync-url' # replace with link the application hosting the producer server
-    DCR_SYNC_DATASET_SUBJECT: "http://data.lblod.info/datasets/delta-producer/dumps/CacheGraphDump"
-    DCR_INITIAL_SYNC_JOB_OPERATION: "http://redpencil.data.gift/id/jobs/concept/JobOperation/deltas/consumer/xyzInitialSync"
-    DCR_DELTA_SYNC_JOB_OPERATION: "http://redpencil.data.gift/id/jobs/concept/JobOperation/deltas/consumer/xyzDeltaFileSyncing"
-    DCR_JOB_CREATOR_URI: "http://data.lblod.info/services/id/consumer"
+    DCR_SYNC_DATASET_SUBJECT: 'http://data.lblod.info/datasets/delta-producer/dumps/CacheGraphDump'
+    DCR_INITIAL_SYNC_JOB_OPERATION: 'http://redpencil.data.gift/id/jobs/concept/JobOperation/deltas/consumer/xyzInitialSync'
+    DCR_DELTA_SYNC_JOB_OPERATION: 'http://redpencil.data.gift/id/jobs/concept/JobOperation/deltas/consumer/xyzDeltaFileSyncing'
+    DCR_JOB_CREATOR_URI: 'http://data.lblod.info/services/id/consumer'
     INGEST_GRAPH: 'http://uri/of/the/graph/to/ingest/the/information'
 ```
 
@@ -67,10 +91,10 @@ consumer:
   environment:
     DCR_SERVICE_NAME: 'your-custom-consumer-identifier' # replace with the desired consumer identifier
     DCR_SYNC_BASE_URL: 'http://base-sync-url' # replace with link the application hosting the producer server
-    DCR_SYNC_DATASET_SUBJECT: "http://data.lblod.info/datasets/delta-producer/dumps/CacheGraphDump"
-    DCR_INITIAL_SYNC_JOB_OPERATION: "http://redpencil.data.gift/id/jobs/concept/JobOperation/deltas/consumer/xyzInitialSync"
-    DCR_DELTA_SYNC_JOB_OPERATION: "http://redpencil.data.gift/id/jobs/concept/JobOperation/deltas/consumer/xyzDeltaFileSyncing"
-    DCR_JOB_CREATOR_URI: "http://data.lblod.info/services/id/consumer"
+    DCR_SYNC_DATASET_SUBJECT: 'http://data.lblod.info/datasets/delta-producer/dumps/CacheGraphDump'
+    DCR_INITIAL_SYNC_JOB_OPERATION: 'http://redpencil.data.gift/id/jobs/concept/JobOperation/deltas/consumer/xyzInitialSync'
+    DCR_DELTA_SYNC_JOB_OPERATION: 'http://redpencil.data.gift/id/jobs/concept/JobOperation/deltas/consumer/xyzDeltaFileSyncing'
+    DCR_JOB_CREATOR_URI: 'http://data.lblod.info/services/id/consumer'
   volumes:
     - ./config/consumer/example-custom-dispatching:/config/triples-dispatching/custom-dispatching
 ```
@@ -98,12 +122,12 @@ consumer:
   environment:
     DCR_SERVICE_NAME: 'your-custom-consumer-identifier' # replace with the desired consumer identifier
     DCR_SYNC_BASE_URL: 'http://base-sync-url' # replace with link the application hosting the producer server
-    DCR_SYNC_DATASET_SUBJECT: "http://data.lblod.info/datasets/delta-producer/dumps/CacheGraphDump"
-    DCR_INITIAL_SYNC_JOB_OPERATION: "http://redpencil.data.gift/id/jobs/concept/JobOperation/deltas/consumer/xyzInitialSync"
-    DCR_DELTA_SYNC_JOB_OPERATION: "http://redpencil.data.gift/id/jobs/concept/JobOperation/deltas/consumer/xyzDeltaFileSyncing"
-    DCR_JOB_CREATOR_URI: "http://data.lblod.info/services/id/consumer"
-    BYPASS_MU_AUTH_FOR_EXPENSIVE_QUERIES: "true"
-    TARGET_GRAPH: "http://graph/to/receive/the/processed/triples"
+    DCR_SYNC_DATASET_SUBJECT: 'http://data.lblod.info/datasets/delta-producer/dumps/CacheGraphDump'
+    DCR_INITIAL_SYNC_JOB_OPERATION: 'http://redpencil.data.gift/id/jobs/concept/JobOperation/deltas/consumer/xyzInitialSync'
+    DCR_DELTA_SYNC_JOB_OPERATION: 'http://redpencil.data.gift/id/jobs/concept/JobOperation/deltas/consumer/xyzDeltaFileSyncing'
+    DCR_JOB_CREATOR_URI: 'http://data.lblod.info/services/id/consumer'
+    BYPASS_MU_AUTH_FOR_EXPENSIVE_QUERIES: 'true'
+    TARGET_GRAPH: 'http://graph/to/receive/the/processed/triples'
   volumes:
     - ./config/consumer/example-custom-dispatching:/config/triples-dispatching/custom-dispatching
 reasoner:
@@ -145,6 +169,7 @@ When adding rules and queries to the reasoner, make sure the required context is
     ?s skos:prefLabel ?prefLabel.
   }.
 ```
+
 Note: there are multiple triggers for the same pattern in `delta-context-config.js` because the order of the delta messages is undetermined. When inserting new triples, there will only be sufficient context to execute the rule when the last part of the pattern arrives in a delta message. This might lead to mu
 
 ## Configuration

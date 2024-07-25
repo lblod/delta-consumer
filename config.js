@@ -16,12 +16,23 @@ export const BATCH_SIZE = parseInt(process.env.DCR_BATCH_SIZE ) || 100;
 // GRAPHS
 export const JOBS_GRAPH = process.env.JOBS_GRAPH || 'http://mu.semte.ch/graphs/system/jobs';
 
-
-// DELTA CONTEXT AND LANDING ZONES
+// DELTA CONTEXT
 export const ENABLE_DELTA_CONTEXT = process.env.DCR_ENABLE_DELTA_CONTEXT == 'true' ? true : false;
+
+// LANDING ZONE (used for context and sparql mapping configuration)
 export const LANDING_ZONE_GRAPH = process.env.DCR_LANDING_ZONE_GRAPH || `http://mu.semte.ch/graphs/system/landingzone`;
 export const LANDING_ZONE_DATABASE = process.env.DCR_LANDING_ZONE_DATABASE || 'database';
 export const LANDING_ZONE_DATABASE_ENDPOINT = process.env.DCR_LANDING_ZONE_DATABASE_ENDPOINT || `http://${LANDING_ZONE_DATABASE}:8890/sparql`;
+
+export const MAX_DB_RETRY_ATTEMPTS = parseInt( process.env.DCR_MAX_DB_RETRY_ATTEMPTS || 5,
+);
+
+// SPARQL MAPPING
+export const ENABLE_SPARQL_MAPPING = process.env.DCR_ENABLE_SPARQL_MAPPING == 'true' ? true : false;
+export const MAPPING_QUERY_FOLDER = process.env.DCR_MAPPING_QUERY_FOLDER || '/config/';
+export const TARGET_DATABASE = process.env.DCR_TARGET_DATABASE;
+export const TARGET_DATABASE_ENDPOINT = process.env.DCR_TARGET_DATABASE_ENDPOINT || `http://${TARGET_DATABASE}:8890/sparql`;
+export const TARGET_GRAPH = process.env.DCR_TARGET_GRAPH || 'http://mu.semte.ch/graphs/consumer-transformed';
 
 // MANDATORY SIMPLE
 if (!process.env.DCR_SYNC_BASE_URL)
