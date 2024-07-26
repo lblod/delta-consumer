@@ -18,11 +18,12 @@
   "homepage": "https://github.com/lblod/delta-consumer#readme",
   "dependencies": {
     "@lblod/mu-auth-sudo": "0.6.1",
+    "async-await-mutex-lock": "1.0.11",
     "cron": "^1.8.2",
     "fs-extra": "^9.0.1",
     "lodash": "^4.17.21",
-    "n3": "^1.11.1",
+    "n3": "^1.17.3",
     "node-fetch": "^2.6.1",
-    "sparqljs": "^3.6.2"
+    "sparqljs": "^3.7.1"
   }
 }
