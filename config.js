@@ -31,8 +31,15 @@ export const MAX_DB_RETRY_ATTEMPTS = parseInt( process.env.DCR_MAX_DB_RETRY_ATTE
 export const ENABLE_SPARQL_MAPPING = process.env.DCR_ENABLE_SPARQL_MAPPING == 'true' ? true : false;
 export const MAPPING_QUERY_FOLDER = process.env.DCR_MAPPING_QUERY_FOLDER || '/config/';
 export const TARGET_DATABASE = process.env.DCR_TARGET_DATABASE;
-export const TARGET_DATABASE_ENDPOINT = process.env.DCR_TARGET_DATABASE_ENDPOINT || `http://${TARGET_DATABASE}:8890/sparql`;
-export const TARGET_GRAPH = process.env.DCR_TARGET_GRAPH || 'http://mu.semte.ch/graphs/consumer-transformed';
+export const TARGET_DATABASE_ENDPOINT =
+  process.env.DCR_TARGET_DATABASE_ENDPOINT ||
+  `http://${TARGET_DATABASE}:8890/sparql`;
+export const TARGET_GRAPH =
+  process.env.DCR_TARGET_GRAPH ||
+  'http://mu.semte.ch/graphs/consumer-transformed';
+export const TRIPLE_STORE = process.env.DCR_TRIPLE_STORE || 'virtuoso';
+export const TRIPLE_STORE_ENDPOINT =
+  process.env.DCR_TRIPLE_STORE_ENDPOINT || `http://${TRIPLE_STORE}:8890/sparql`;
 
 // MANDATORY SIMPLE
 if (!process.env.DCR_SYNC_BASE_URL)
