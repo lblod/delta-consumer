@@ -1,8 +1,0 @@
-#This is not a simple https -> http mapping. The custom dispatching is in the mapping folder
-    CONSTRUCT {
-      ?s <http://data.vlaanderen.be/ns/persoon#gebruikteVoornaam> ?o .
-    }
-    WHERE {
-      ?s <https://data.vlaanderen.be/ns/persoon#gebruikteVoornaam> ?o .
-    }
-  

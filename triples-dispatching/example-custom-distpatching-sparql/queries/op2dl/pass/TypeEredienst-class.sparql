@@ -1,7 +1,0 @@
-
-    CONSTRUCT {
-      ?s a <http://lblod.data.gift/vocabularies/organisatie/TypeEredienst> .
-    }  
-    WHERE {
-      ?s a <http://lblod.data.gift/vocabularies/organisatie/TypeEredienst> .
-    }

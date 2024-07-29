@@ -1,7 +1,0 @@
-
-    CONSTRUCT {
-      ?s a <http://lblod.data.gift/vocabularies/organisatie/BestuursorgaanClassificatieCode> .
-    }  
-    WHERE {
-      ?s a <http://lblod.data.gift/vocabularies/organisatie/BestuursorgaanClassificatieCode> .
-    }

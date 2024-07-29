@@ -1,7 +1,0 @@
-
-    CONSTRUCT {
-      ?s a <http://schema.org/ContactPoint> .
-    }  
-    WHERE {
-      ?s a <http://schema.org/ContactPoint> .
-    }

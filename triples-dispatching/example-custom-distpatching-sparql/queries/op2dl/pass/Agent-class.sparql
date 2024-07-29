@@ -1,7 +1,0 @@
-
-    CONSTRUCT {
-      ?s a <http://purl.org/dc/terms/Agent> .
-    }  
-    WHERE {
-      ?s a <http://purl.org/dc/terms/Agent> .
-    }
