@@ -25,7 +25,7 @@ import { updateStatus } from '../lib/utils';
 import { deltaSyncDispatching } from '../triples-dispatching';
 import * as fetch from 'node-fetch';
 import { chunk } from 'lodash';
-import { synchronizedDeltaProcessing } from '../lib/delta-sparql-mapping.js';
+import { deltaSparqlProcessing } from '../lib/delta-sparql-mapping.js';
 
 export async function startDeltaSync() {
   try {
@@ -86,7 +86,7 @@ async function runDeltaSync() {
           if (ENABLE_DELTA_CONTEXT) {
           } else if (ENABLE_SPARQL_MAPPING) {
             const { termObjectChangeSets, changeSets } = await deltaFile.load();
-            await synchronizedDeltaProcessing(changeSets);
+            await deltaSparqlProcessing(changeSets);
             // To be discussed: keep the custom dispatching when mapping is enabled
             await deltaSyncDispatching.dispatch(
               {
