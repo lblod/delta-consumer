@@ -30,7 +30,6 @@ The context is configured through `delta-context-config.js` which is covered in 
 
 The `DCR_LANDING_ZONE_GRAPH` is maintained by the delta-producer when this feature is and contains all the triples from the data-sources producer graph - without any filtering or other changes. This graph is used to lookup context and can be offloaded to a different triplestore than the main application database by providing the `DCR_LANDING_ZONE_DATABASE` environment variable.
 
-
 ### Delta Message - SPARQL Mapping - :warning: EXPERIMENTAL
 
 The delta-consumer facilitates the mapping of incoming messages to a different model. This is achieved by providing SPARQL queries in the configuration directory. These queries are executed on the landing zone graph, and the results are used to update the target graph.
@@ -69,7 +68,7 @@ All incoming delta triples (insert or delete) are processed one by one. The mapp
 <http://example.org/subject#123> <http://example.org/property#foo> "bar".
 ```
 
-**Matching Queries:**
+**Example Matching Queries:**
 
 ```SPARQL
 CONSTRUCT {
@@ -148,7 +147,6 @@ CONSTRUCT {
   }
 }
 ```
-
 
 ## Tutorials
 
@@ -270,6 +268,43 @@ When adding rules and queries to the reasoner, make sure the required context is
 ```
 
 Note: there are multiple triggers for the same pattern in `delta-context-config.js` because the order of the delta messages is undetermined. When inserting new triples, there will only be sufficient context to execute the rule when the last part of the pattern arrives in a delta message. This might lead to mu
+
+### Add the service to a stack with SPARQL mapping
+
+> [!WARNING]
+> Please read the best practices even when you're familiar with SPARQL CONSTRUCT queries. The mapping of DELETE deltas might have some counterintuitive behaviour.
+
+There's an example configuration provided in `triples-dispatching/example-custom-distpatching-sparql`. This configuration consumes and maps `lblod/app-organization-portal`
+
+1. Copy the folder `triples-dispatching/example-custom-distpatching-sparql` into `config/consumer/`
+2. Add the following to your `docker-compose.yml`:
+
+```yaml
+image: lblod/delta-consumer
+    environment:
+      DCR_SYNC_BASE_URL: "https://organisaties.abb.lblod.info"
+      # DCR_SYNC_BASE_URL: "https://organisaties.abb.vlaanderen.be"
+      DCR_SERVICE_NAME: "op-consumer"
+      DCR_SYNC_FILES_PATH: "/sync/organizations-public-info/files"
+      DCR_SYNC_DATASET_SUBJECT: "http://data.lblod.info/datasets/delta-producer/dumps/OrganizationsPublicInfoCacheGraphDump"
+      DCR_INITIAL_SYNC_JOB_OPERATION: "http://redpencil.data.gift/id/jobs/concept/JobOperation/deltas/consumer/op"
+      DCR_DELTA_SYNC_JOB_OPERATION: "http://redpencil.data.gift/id/jobs/concept/JobOperation/deltas/consumer/opDeltaFileSyncing"
+      DCR_JOB_CREATOR_URI: "http://data.lblod.info/services/id/op-consumer"
+      DCR_KEEP_DELTA_FILES: "true"
+      DCR_DELTA_FILE_FOLDER: "/consumer-files"
+      DCR_DISABLE_DELTA_INGEST: "false"
+      DCR_DISABLE_INITIAL_SYNC: "false"
+      DCR_WAIT_FOR_INITIAL_SYNC: "true"
+      BYPASS_MU_AUTH_FOR_EXPENSIVE_QUERIES: "true"
+      DCR_TARGET_DATABASE: "virtuoso"
+      DCR_ENABLE_SPARQL_MAPPING: "true"
+      DCR_LANDING_ZONE_GRAPH: "http://mu.semte.ch/graphs/op-consumer-test"
+      DCR_TARGET_GRAPH: "http://mu.semte.ch/graphs/op-consumer-test-transformed"
+    volumes:
+      - .:/app/
+      - ./config/:/config/
+      - ./triples-dispatching/example-custom-distpatching-sparql/:/config/triples-dispatching/custom-dispatching
+```
 
 ## Configuration
 
