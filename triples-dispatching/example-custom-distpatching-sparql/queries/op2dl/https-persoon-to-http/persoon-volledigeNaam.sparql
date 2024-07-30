@@ -1,8 +1,0 @@
-
-    CONSTRUCT {
-      ?s <http://data.vlaanderen.be/ns/persoon#volledigeNaam> ?o .
-    }
-    WHERE {
-      ?s <https://data.vlaanderen.be/ns/persoon#volledigeNaam> ?o .
-    }
-  
