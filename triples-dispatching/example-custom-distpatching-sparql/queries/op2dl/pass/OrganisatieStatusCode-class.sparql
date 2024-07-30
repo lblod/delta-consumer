@@ -1,7 +1,0 @@
-
-    CONSTRUCT {
-      ?s a <http://lblod.data.gift/vocabularies/organisatie/OrganisatieStatusCode> .
-    }  
-    WHERE {
-      ?s a <http://lblod.data.gift/vocabularies/organisatie/OrganisatieStatusCode> .
-    }

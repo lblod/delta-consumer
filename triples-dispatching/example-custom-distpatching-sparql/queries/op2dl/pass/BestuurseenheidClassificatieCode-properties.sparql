@@ -1,9 +1,0 @@
-
-    CONSTRUCT {
-      ?s ?p ?o .
-    }  
-    WHERE {
-      ?s a <http://mu.semte.ch/vocabularies/ext/BestuurseenheidClassificatieCode> ;
-         ?p ?o .
-    }
-  

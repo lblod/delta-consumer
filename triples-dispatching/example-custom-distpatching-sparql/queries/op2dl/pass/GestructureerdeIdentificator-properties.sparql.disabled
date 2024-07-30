@@ -1,9 +1,0 @@
-
-    CONSTRUCT {
-      ?s ?p ?o .
-    }  
-    WHERE {
-      ?s a <https://data.vlaanderen.be/ns/generiek#GestructureerdeIdentificator> ;
-         ?p ?o .
-    }
-  

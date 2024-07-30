@@ -1,7 +1,0 @@
-
-    CONSTRUCT {
-      ?s a <http://data.lblod.info/vocabularies/erediensten/RepresentatiefOrgaan> .
-    }  
-    WHERE {
-      ?s a <http://data.lblod.info/vocabularies/erediensten/RepresentatiefOrgaan> .
-    }
