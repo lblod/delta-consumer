@@ -30,39 +30,125 @@ The context is configured through `delta-context-config.js` which is covered in 
 
 The `DCR_LANDING_ZONE_GRAPH` is maintained by the delta-producer when this feature is and contains all the triples from the data-sources producer graph - without any filtering or other changes. This graph is used to lookup context and can be offloaded to a different triplestore than the main application database by providing the `DCR_LANDING_ZONE_DATABASE` environment variable.
 
-### Delta Message - SPARQL mapping
 
-The delta-consumer provides a way to map the incoming messages to a different model. This is done by providing a SPARQL queries in the configuration directory. The queries are executed on the landing zone graph and the results are used to update target graph.
+### Delta Message - SPARQL Mapping - :warning: EXPERIMENTAL
 
-Each triple from the delta message is treated individually.
+The delta-consumer facilitates the mapping of incoming messages to a different model. This is achieved by providing SPARQL queries in the configuration directory. These queries are executed on the landing zone graph, and the results are used to update the target graph.
 
-#### Delete
+Each triple from the delta message is processed individually.
 
-When a delete comes in, which breaks the where part of a query - the whole construct clause is deleted from the target graph.
+#### Delete Operations
 
-- Match queries for statement
-- Delete resulting triple(s) from target graph.
-  - The CONSTRUCT part of the matching query
-  - Matching variables are bound to values in the WHERE clause.
-- Delete the original triple from the landing zone
+When a delete occurs that breaks the `WHERE` part of a query, the entire matching `CONSTRUCT` clause is deleted from the target graph. cfr. [avoid unintended deletes](#avoiding-unintended-deletes).
 
-#### Insert
+1. **Match queries for the statement.**
+2. **Delete resulting triples from the target graph:**
+   - The `CONSTRUCT` template is translated as to a `DELETE` clause
+   - The `WHERE` clause:
+     - Matching variables are bound to delta message values
+     - The triple pattern is scoped to the landing zone graph.
+3. **Delete the original triple from the landing zone.**
 
-- Insert the original triple in the landing zone
-- Match queries for statement
-- Insert resulting triples into target graph
-  - The CONSTRUCT part of the matching query
-  - Matching variables are bound to values in the WHERE clause.
+#### Insert Operations
 
-#TODO:
+1. **Insert the original triple into the landing zone.**
+2. **Match queries for the statement.**
+3. **Insert resulting triples into the target graph:**
+   - The `CONSTRUCT` template is translated as to a `INSERT` clause
+   - The `WHERE` clause:
+     - Matching variables are bound to delta message values.
+     - The triple pattern is scoped to the landing zone graph.
 
-- overlap/interference of queries
-- example: replacement
-- example: addition
-- where: data source vocabulary/model. construct target app voc/model
-- pass through of types and properties, with filter not in.
-- .disabled files
-- scripts to assist config generation
+#### How Queries Are Matched with Triples
+
+All incoming delta triples (insert or delete) are processed one by one. The mapping queries are filtered based on whether the delta triple matches any triple patterns in the basic graph pattern of the `WHERE` clause. Only simple triple patterns are considered at this stage. Filters, subqueries, variable bindings, etc., are ignored.
+
+**Example Delta Triple:**
+
+```SPARQL
+<http://example.org/subject#123> <http://example.org/property#foo> "bar".
+```
+
+**Matching Queries:**
+
+```SPARQL
+CONSTRUCT {
+  ?s ?p ?o
+} WHERE {
+  ?s ?p ?o.
+}
+```
+
+```SPARQL
+CONSTRUCT {
+  ?s <http://example.org/property#baz> ?baz.
+} WHERE {
+  ?s <http://example.org/property#foo> ?foo.
+  ?foo <http://example.org/property#bar> ?baz.
+}
+```
+
+Once a match is identified, the delta triple values are bound to the respective variables, and the `INSERT` or `DELETE` query is executed against the target graph on the triplestore.
+
+#### Avoiding Unintended Deletes
+
+Adding extra constraints may lead to **additional deletes**.
+
+**Example Mapping Query:**
+
+```SPARQL
+CONSTRUCT {
+  ?s ?p ?o .
+} WHERE {
+  ?s
+    a <http://example.org/type/X> ;
+    ?p ?o .
+}
+```
+
+This mapping query passes through all inserts/deletes when the subject of a delta triple has an `rdf:type` of `<http://example.org/type/X>`.
+
+**Example DELETE Delta Triple:**
+
+```SPARQL
+<http://example.org/subject#S> a <http://example.org/type/X>.
+```
+
+**Results in the following DELETE query on the triple store**
+
+```SPARQL
+DELETE {
+  GRAPH <http://example.org/target-graph> {
+    ?s ?p ?o .
+  }
+} WHERE {
+  GRAPH <http://example.org/landing-zone> {
+    ?s
+      a <http://example.org/type/X> ;
+      ?p ?o .
+    VALUES ?s { <http://example.org/subject#S> }
+  }
+}
+```
+
+This would lead to the deletion of ALL triples in the target graph where the subject is `<http://example.org/subject#S>`. This could be triggered when the type is changed, or an `rdf:type` is removed from a subject (even when other `rdf:types` remain in the source).
+
+**To avoid accidental deletes:**
+
+- Keep `CONSTRUCT` queries as minimal as possible, avoiding such patterns.
+- When additional constraints are needed in the `WHERE` clause, use `FILTER EXISTS`, which is ignored when filtering the queries. For example:
+
+```SPARQL
+CONSTRUCT {
+  ?s ?p ?o.
+} WHERE {
+  ?s ?p ?o.
+  FILTER EXISTS {
+    ?s a <http://example.org/type/X>.
+  }
+}
+```
+
 
 ## Tutorials
 
@@ -114,6 +200,9 @@ consumer:
 Please read further to find out more about the API of the hooks.
 
 ### Add the service to stack with delta context and custom behaviour (mapping and filtering through a reasoner service).
+
+> [!NOTE]
+> Consider using SPARQL mapping instead due to known issues with delete deletas.
 
 This is just one example where the delta context is necessary. The delta context is a way to provide extra information for custom triples-dispatching.
 
