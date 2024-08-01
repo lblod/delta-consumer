@@ -25,7 +25,7 @@ import { updateStatus, toTermObjectArray } from '../lib/utils';
 import { deltaSyncDispatching } from '../triples-dispatching';
 import * as fetch from 'node-fetch';
 import { chunk } from 'lodash';
-import { deltaSparqlProcessing } from '../lib/delta-sparql-mapping.js';
+import { remapDeltas } from '../lib/delta-sparql-mapping.js';
 
 export async function startDeltaSync() {
   try {
@@ -85,7 +85,7 @@ async function runDeltaSync() {
         try {
           const { termObjectChangeSets, changeSets } = await deltaFile.load();
           if (ENABLE_SPARQL_MAPPING) {
-            const remappedChangeSets = await deltaSparqlProcessing(changeSets);
+            const remappedChangeSets = await remapDeltas(changeSets);
             //TODO: fix the too many variations of triples data structure. This is a mess
             termObjectChangeSets = convertChangeSetsToTermObjects(remappedChangeSets);
             await deltaSyncDispatching.dispatch({ mu, muAuthSudo, fetch, chunk, sparqlEscapeUri: mu.sparqlEscapeUri },
