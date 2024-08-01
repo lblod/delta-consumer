@@ -18,7 +18,6 @@ import { deleteDeltaFilesForJob } from './lib/utils';
 import { startDeltaSync } from './pipelines/delta-sync';
 import { startInitialSync } from './pipelines/initial-sync';
 import { startDeltaCleanup } from './pipelines/delta-cleanup';
-import { initialMapping } from './lib/delta-sparql-mapping';
 
 const deltaSyncQueue = new ProcessingQueue('delta-sync-queue');
 
@@ -65,11 +64,6 @@ app.post('/delta-sync-jobs', async function( _, res ){
 app.post('/delta-cleanup-jobs', async function( _, res ){
   startDeltaCleanup();
   res.send({ msg: 'Started delta cleanup job' });
-});
-
-app.post('/initial-sparql-mapping', async function (_, res) {
-  initialMapping();
-  res.send({ msg: 'Started initial sparql mapping' });
 });
 
 app.post('/flush', async function (_, res) {
