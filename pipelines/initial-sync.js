@@ -6,7 +6,6 @@ import {
   SERVICE_NAME,
   LANDING_ZONE_GRAPH,
   LANDING_ZONE_DATABASE_ENDPOINT,
-  ENABLE_SPARQL_MAPPING,
 } from '../config';
 import {
   INITIAL_SYNC_TASK_OPERATION,
@@ -26,7 +25,7 @@ import * as muAuthSudo from '@lblod/mu-auth-sudo';
 import * as mu from 'mu';
 import * as fetch from 'node-fetch';
 import { chunk } from 'lodash';
-import { initialMapping } from '../lib/delta-sparql-mapping';
+
 export async function startInitialSync() {
   try {
     console.info(`DISABLE_INITIAL_SYNC: ${DISABLE_INITIAL_SYNC}`);
@@ -68,12 +67,8 @@ async function runInitialSync() {
 
     if (dumpFile) {
       await updateStatus(task, STATUS_BUSY);
-      await dumpFile.loadAndDispatch(initialSyncDispatching.dispatch);
 
-      if (ENABLE_SPARQL_MAPPING) {
-        console.log('Start initial SPARQL mapping');
-        await initialMapping();
-      }
+      await dumpFile.loadAndDispatch(initialSyncDispatching.dispatch);
 
       if (initialSyncDispatching.onFinishInitialIngest) {
         console.log('Found onFinishInitialIngest, calling.');
