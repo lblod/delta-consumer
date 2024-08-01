@@ -21,7 +21,7 @@ import { calculateLatestDeltaTimestamp } from '../lib/delta-sync-job';
 import { createDeltaSyncTask } from '../lib/delta-sync-task';
 import { createError, createJobError } from '../lib/error';
 import { createJob, failJob, getJobs, getLatestJobForOperation } from '../lib/job';
-import { updateStatus } from '../lib/utils';
+import { updateStatus, toTermObjectArray } from '../lib/utils';
 import { deltaSyncDispatching } from '../triples-dispatching';
 import * as fetch from 'node-fetch';
 import { chunk } from 'lodash';
@@ -83,25 +83,16 @@ async function runDeltaSync() {
         console.log(`Ingesting deltafile created on ${deltaFile.created}`);
         const task = await createDeltaSyncTask(JOBS_GRAPH, job, `${index}`, STATUS_BUSY, deltaFile, parentTask);
         try {
-          if (ENABLE_DELTA_CONTEXT) {
-          } else if (ENABLE_SPARQL_MAPPING) {
-            const { termObjectChangeSets, changeSets } = await deltaFile.load();
-            await deltaSparqlProcessing(changeSets);
-            // To be discussed: keep the custom dispatching when mapping is enabled
-            await deltaSyncDispatching.dispatch(
-              {
-                mu,
-                muAuthSudo,
-                fetch,
-                chunk,
-                sparqlEscapeUri: mu.sparqlEscapeUri,
-              },
-              { termObjectChangeSets },
-              constants,
-            );
+          const { termObjectChangeSets, changeSets } = await deltaFile.load();
+          if (ENABLE_SPARQL_MAPPING) {
+            const remappedChangeSets = await deltaSparqlProcessing(changeSets);
+            //TODO: fix the too many variations of triples data structure. This is a mess
+            termObjectChangeSets = convertChangeSetsToTermObjects(remappedChangeSets);
+            await deltaSyncDispatching.dispatch({ mu, muAuthSudo, fetch, chunk, sparqlEscapeUri: mu.sparqlEscapeUri },
+                                                { termObjectChangeSets }, constants);
           } else {
-            const termObjectChangeSets = await deltaFile.load();
-            await deltaSyncDispatching.dispatch({ mu, muAuthSudo, fetch, chunk, sparqlEscapeUri: mu.sparqlEscapeUri }, { termObjectChangeSets }, constants);
+            await deltaSyncDispatching.dispatch({ mu, muAuthSudo, fetch, chunk, sparqlEscapeUri: mu.sparqlEscapeUri },
+                                                { termObjectChangeSets }, constants);
           }
 
           await updateStatus(task, STATUS_SUCCESS);
@@ -148,4 +139,14 @@ async function getSortedUnconsumedFiles(since) {
     console.log(`Unable to retrieve unconsumed files from ${SYNC_FILES_ENDPOINT}`);
     throw e;
   }
+}
+
+function convertChangeSetsToTermObjects(changeSets) {
+  const converted = [];
+  for(const changeSet of changeSets) {
+    const deletes = toTermObjectArray(changeSet.deletes);
+    const inserts = toTermObjectArray(changeSet.inserts);
+    converted.push({ deletes, inserts });
+  }
+  return converted;
 }
