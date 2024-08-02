@@ -11,7 +11,7 @@ import {
   SYNC_FILES_ENDPOINT,
   WAIT_FOR_INITIAL_SYNC,
   ENABLE_DELTA_CONTEXT,
-  ENABLE_SPARQL_MAPPING,
+  ENABLE_TRIPLE_REMAPPING,
   LANDING_ZONE_GRAPH,
   LANDING_ZONE_DATABASE_ENDPOINT,
 } from '../config';
@@ -84,7 +84,7 @@ async function runDeltaSync() {
         const task = await createDeltaSyncTask(JOBS_GRAPH, job, `${index}`, STATUS_BUSY, deltaFile, parentTask);
         try {
           const { termObjectChangeSets, changeSets } = await deltaFile.load();
-          if (ENABLE_SPARQL_MAPPING) {
+          if (ENABLE_TRIPLE_REMAPPING) {
             const remappedChangeSets = await remapTriplesInDeltas(changeSets);
             //TODO: fix the too many variations of triples data structure. This is a mess
             termObjectChangeSets = convertChangeSetsToTermObjects(remappedChangeSets);
