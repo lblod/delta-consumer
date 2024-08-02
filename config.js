@@ -25,11 +25,11 @@ export const LANDING_ZONE_DATABASE = process.env.DCR_LANDING_ZONE_DATABASE || 'd
 export const LANDING_ZONE_DATABASE_ENDPOINT = process.env.DCR_LANDING_ZONE_DATABASE_ENDPOINT || `http://${LANDING_ZONE_DATABASE}:8890/sparql`;
 
 // SPARQL MAPPING
-export const ENABLE_SPARQL_MAPPING = process.env.DCR_ENABLE_SPARQL_MAPPING == 'true' ? true : false;
 export const MAPPING_QUERY_FOLDER = process.env.DCR_MAPPING_QUERY_FOLDER || '/config/mapping';
-export const TARGET_DATABASE = process.env.DCR_TARGET_DATABASE || 'virtuoso';
-export const REMAPPING_DATABASE_ENDPOINT = process.env.DCR_REMAPPING_DATABASE_ENDPOINT || `http://${TARGET_DATABASE}:8890/sparql`;
-export const TARGET_GRAPH = process.env.DCR_TARGET_GRAPH || 'http://mu.semte.ch/graphs/consumer-transformed';
+export const ENABLE_TRIPLE_REMAPPING = process.env.DCR_ENABLE_TRIPLE_REMAPPING == 'true' ? true : false;
+export const REMAPPING_DATABASE = process.env.DCR_REMAPPING_DATABASE || 'virtuoso';
+export const REMAPPING_DATABASE_ENDPOINT = process.env.DCR_REMAPPING_DATABASE_ENDPOINT || `http://${REMAPPING_DATABASE}:8890/sparql`;
+export const REMAPPING_GRAPH = process.env.DCR_REMAPPING_GRAPH || 'http://mu.semte.ch/graphs/consumer-transformed';
 
 // MANDATORY SIMPLE
 if (!process.env.DCR_SYNC_BASE_URL)
