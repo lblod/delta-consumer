@@ -302,8 +302,8 @@ image: lblod/delta-consumer
       DCR_TARGET_GRAPH: "http://mu.semte.ch/graphs/op-consumer-test-transformed"
     volumes:
       - .:/app/
-      - ./config/:/config/
-      - ./triples-dispatching/example-custom-distpatching-sparql/:/config/triples-dispatching/custom-dispatching
+      - ./config/delta-consumer/mapping:/config/mapping
+      - ./config/delat-consumer/example-custom-distpatching-sparql:/config/triples-dispatching/custom-dispatching
 ```
 
 ## Configuration

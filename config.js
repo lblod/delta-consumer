@@ -40,6 +40,7 @@ export const TARGET_GRAPH =
 export const TRIPLE_STORE = process.env.DCR_TRIPLE_STORE || 'virtuoso';
 export const TRIPLE_STORE_ENDPOINT =
   process.env.DCR_TRIPLE_STORE_ENDPOINT || `http://${TRIPLE_STORE}:8890/sparql`;
+export const MAPPING_QUERY_FOLDER = process.env.DCR_MAPPING_QUERY_FOLDER || '/config/mapping';
 
 // MANDATORY SIMPLE
 if (!process.env.DCR_SYNC_BASE_URL)
