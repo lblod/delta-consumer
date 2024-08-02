@@ -28,7 +28,7 @@ export const LANDING_ZONE_DATABASE_ENDPOINT = process.env.DCR_LANDING_ZONE_DATAB
 export const ENABLE_SPARQL_MAPPING = process.env.DCR_ENABLE_SPARQL_MAPPING == 'true' ? true : false;
 export const MAPPING_QUERY_FOLDER = process.env.DCR_MAPPING_QUERY_FOLDER || '/config/mapping';
 export const TARGET_DATABASE = process.env.DCR_TARGET_DATABASE || 'virtuoso';
-export const TARGET_DATABASE_ENDPOINT = process.env.DCR_TARGET_DATABASE_ENDPOINT || `http://${TARGET_DATABASE}:8890/sparql`;
+export const REMAPPING_DATABASE_ENDPOINT = process.env.DCR_REMAPPING_DATABASE_ENDPOINT || `http://${TARGET_DATABASE}:8890/sparql`;
 export const TARGET_GRAPH = process.env.DCR_TARGET_GRAPH || 'http://mu.semte.ch/graphs/consumer-transformed';
 
 // MANDATORY SIMPLE
