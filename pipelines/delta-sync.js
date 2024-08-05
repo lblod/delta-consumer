@@ -83,9 +83,9 @@ async function runDeltaSync() {
         console.log(`Ingesting deltafile created on ${deltaFile.created}`);
         const task = await createDeltaSyncTask(JOBS_GRAPH, job, `${index}`, STATUS_BUSY, deltaFile, parentTask);
         try {
-          const { termObjectChangeSets, changeSets } = await deltaFile.load();
+          let { termObjectChangeSets, changeSets } = await deltaFile.load();
           if (ENABLE_TRIPLE_REMAPPING) {
-            const remappedChangeSets = await remapTriplesInDeltas(changeSets);
+            let remappedChangeSets = await remapTriplesInDeltas(changeSets);
             //TODO: fix the too many variations of triples data structure. This is a mess
             termObjectChangeSets = convertChangeSetsToTermObjects(remappedChangeSets);
             await deltaSyncDispatching.dispatch({ mu, muAuthSudo, fetch, chunk, sparqlEscapeUri: mu.sparqlEscapeUri },
