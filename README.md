@@ -359,6 +359,18 @@ Delta context variables:
 - `DCR_LANDING_ZONE_DATABASE (default: database)`: consider using a different triplestore than the main application database.
 - `DCR_LANDING_ZONE_DATABASE_ENDPOINT (default: http://${DCR_LANDING_ZONE_DATABASE}:8890/sparql`) : the url of a sparql endpoint - overrules the `DCR_LANDING_ZONE_DATABASE` variable.
 
+SPARQL mapping variables:
+
+- `DCR_ENABLE_TRIPLE_REMAPPING (default: false)`: enable the SPARQL mapping feature.
+- `DCR_LANDING_ZONE_GRAPH (default: http://mu.semte.ch/graphs/system/landingzone)`: Graph which maintains a mirror copy of the data-sources producer graph. It is the result of all the incoming insert/delete statements without any mapping or filtering.
+- `DCR_REMAPPING_GRAPH (default: http://mu.semte.ch/graphs/consumer-transformed)`: Graph where the remapped triples are stored.
+- `DCR_REMAPPING_DATABASE (default: database)`: consider using a different triplestore than the main application database.
+- `DCR_REMAPPING_DATABASE_ENDPOINT (default: http://${DCR_REMAPPING_DATABASE}:8890/sparql`) : the url of a sparql endpoint - overrules the `DCR_REMAPPING_DATABASE` variable.
+- `DCR_MAPPING_QUERY_FOLDER (default: /config/mapping)`: the path where the mapping queries are stored.
+- `DCR_DIRECT_EXECUTE_EXPENSIVE_QUERIES (default: true)`: execute expensive queries directly on the triplestore. i.e. bypass mu-auth or sparql-parser.
+- `DCR_DIRECT_REMAPPING_DATABASE (default: virtuoso)`: the name of the database where the remapping graph is stored. This is used when the remapping graph is stored in a different database than the main application database.
+-
+
 #### Triples dispatching: single graph ingestion (default behaviour)
 
 - `INGEST_GRAPH (default: http://mu.semte.ch/graphs/public)`: graph in which all insert changesets are ingested
