@@ -31,6 +31,11 @@ export const REMAPPING_DATABASE = process.env.DCR_REMAPPING_DATABASE || 'databas
 export const REMAPPING_DATABASE_ENDPOINT = process.env.DCR_REMAPPING_DATABASE_ENDPOINT || `http://${REMAPPING_DATABASE}:8890/sparql`;
 export const REMAPPING_GRAPH = process.env.DCR_REMAPPING_GRAPH || 'http://mu.semte.ch/graphs/consumer-transformed';
 
+export const DIRECT_EXECUTE_EXPENSIVE_QUERIES = process.env.DCR_DIRECT_EXECUTE_EXPENSIVE_QUERIES == 'false' ? false : true; // default true
+export const DIRECT_REMAPPING_DATABASE = process.env.DCR_DIRECT_REMAPPING_DATABASE || 'virtuoso';
+export const DIRECT_REMAPPING_DATABASE_ENDPOINT = process.env.DCR_DIRECT_REMAPPING_DATABASE_ENDPOINT || `http://${DIRECT_REMAPPING_DATABASE}:8890/sparql`;
+
+
 // MANDATORY SIMPLE
 if (!process.env.DCR_SYNC_BASE_URL)
   throw `Expected 'DCR_SYNC_BASE_URL' to be provided.`;
