@@ -36,6 +36,9 @@ The delta-consumer facilitates the mapping of incoming messages to a different m
 
 Each triple from the delta message is processed individually.
 
+> [!WARNING]
+> Custom dispatching is **not** supported when using SPARQL mapping. i.e. the `dispatch` function will not be called. The `onFinish` hook after the initial sync is still available.
+
 #### Delete Operations
 
 When a delete occurs that breaks the `WHERE` part of a query, the entire matching `CONSTRUCT` clause is deleted from the target graph. cfr. [avoid unintended deletes](#avoiding-unintended-deletes).
