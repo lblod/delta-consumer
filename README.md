@@ -224,7 +224,7 @@ consumer:
     DCR_DELTA_SYNC_JOB_OPERATION: 'http://redpencil.data.gift/id/jobs/concept/JobOperation/deltas/consumer/xyzDeltaFileSyncing'
     DCR_JOB_CREATOR_URI: 'http://data.lblod.info/services/id/consumer'
     BYPASS_MU_AUTH_FOR_EXPENSIVE_QUERIES: 'true'
-    TARGET_GRAPH: 'http://graph/to/receive/the/processed/triples'
+    REMAPPING_GRAPH: 'http://graph/to/receive/the/processed/triples'
   volumes:
     - ./config/consumer/example-custom-dispatching:/config/triples-dispatching/custom-dispatching
 reasoner:
@@ -296,14 +296,13 @@ image: lblod/delta-consumer
       DCR_DISABLE_INITIAL_SYNC: "false"
       DCR_WAIT_FOR_INITIAL_SYNC: "true"
       BYPASS_MU_AUTH_FOR_EXPENSIVE_QUERIES: "true"
-      DCR_TARGET_DATABASE: "virtuoso"
-      DCR_ENABLE_SPARQL_MAPPING: "true"
-      DCR_LANDING_ZONE_GRAPH: "http://mu.semte.ch/graphs/op-consumer-test"
-      DCR_TARGET_GRAPH: "http://mu.semte.ch/graphs/op-consumer-test-transformed"
+      DCR_REMAPPING_DATABASE: "virtuoso"
+      DCR_ENABLE_TRIPLE_REMAPPING: "true"
+      DCR_LANDING_ZONE_GRAPH: "http://mu.semte.ch/graphs/op-consumer-test
+      DCR_REMAPPING_GRAPH: "http://mu.semte.ch/graphs/op-consumer-test-transformed"
     volumes:
-      - .:/app/
-      - ./config/:/config/
-      - ./triples-dispatching/example-custom-distpatching-sparql/:/config/triples-dispatching/custom-dispatching
+      - ./config/delta-consumer/mapping:/config/mapping
+      - ./config/delta-consumer/example-custom-distpatching-sparql:/config/triples-dispatching/custom-dispatching
 ```
 
 ## Configuration
