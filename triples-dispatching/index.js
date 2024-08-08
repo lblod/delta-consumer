@@ -1,3 +1,5 @@
+import { ENABLE_CUSTOM_DISPATCH } from "../config";
+
 const initialSyncDispatching = tryLoadModule('/config/triples-dispatching/custom-dispatching/initial-sync-dispatching',
   './single-graph-dispatching/initial-sync-dispatching');
 const deltaSyncDispatching = tryLoadModule('/config/triples-dispatching/custom-dispatching/delta-sync-dispatching',
@@ -25,6 +27,12 @@ function tryLoadModule(targetModulePath, fallbackModulePath) {
       console.error(`The provided parameters for custom module ${targetModulePath}. (Note: this is optional and can be empty`);
       console.error(`The provided parameters for default module ${fallbackModulePath}.`);
       throw e;
+    }
+  } finally {
+    if (!ENABLE_CUSTOM_DISPATCH) {
+      console.log(`[!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!]`);
+      console.log(`Custom dispatching has been disabled. The dispatch function will not be called.`);
+      console.log(`[!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!]`);
     }
   }
 }
