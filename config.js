@@ -12,7 +12,7 @@ export const DUMPFILE_FOLDER = process.env.DCR_DUMPFILE_FOLDER || 'consumer/delt
 export const CRON_PATTERN_DELTA_SYNC = process.env.DCR_CRON_PATTERN_DELTA_SYNC || '0 * * * * *'; // every minute
 export const DELTA_JOBS_RETENTION_PERIOD = parseInt(process.env.DCR_DELTA_JOBS_RETENTION_PERIOD || -1);
 export const CRON_PATTERN_DELTA_CLEANUP = process.env.DCR_CRON_PATTERN_DELTA_CLEANUP || '0 0 * * * *'; // every hour
-export const BATCH_SIZE = parseInt(process.env.DCR_BATCH_SIZE ) || 100;
+export const BATCH_SIZE = parseInt(process.env.DCR_BATCH_SIZE) || 100;
 // GRAPHS
 export const JOBS_GRAPH = process.env.JOBS_GRAPH || 'http://mu.semte.ch/graphs/system/jobs';
 
@@ -24,22 +24,12 @@ export const LANDING_ZONE_GRAPH = process.env.DCR_LANDING_ZONE_GRAPH || `http://
 export const LANDING_ZONE_DATABASE = process.env.DCR_LANDING_ZONE_DATABASE || 'database';
 export const LANDING_ZONE_DATABASE_ENDPOINT = process.env.DCR_LANDING_ZONE_DATABASE_ENDPOINT || `http://${LANDING_ZONE_DATABASE}:8890/sparql`;
 
-export const MAX_DB_RETRY_ATTEMPTS = parseInt( process.env.DCR_MAX_DB_RETRY_ATTEMPTS || 5,
-);
-
-// SPARQL MAPPING
-export const ENABLE_SPARQL_MAPPING = process.env.DCR_ENABLE_SPARQL_MAPPING == 'true' ? true : false;
-export const MAPPING_QUERY_FOLDER = process.env.DCR_MAPPING_QUERY_FOLDER || '/config/';
-export const TARGET_DATABASE = process.env.DCR_TARGET_DATABASE;
-export const TARGET_DATABASE_ENDPOINT =
-  process.env.DCR_TARGET_DATABASE_ENDPOINT ||
-  `http://${TARGET_DATABASE}:8890/sparql`;
-export const TARGET_GRAPH =
-  process.env.DCR_TARGET_GRAPH ||
-  'http://mu.semte.ch/graphs/consumer-transformed';
-export const TRIPLE_STORE = process.env.DCR_TRIPLE_STORE || 'virtuoso';
-export const TRIPLE_STORE_ENDPOINT =
-  process.env.DCR_TRIPLE_STORE_ENDPOINT || `http://${TRIPLE_STORE}:8890/sparql`;
+export const MAPPING_QUERY_FOLDER = process.env.DCR_MAPPING_QUERY_FOLDER || '/config/mapping';
+export const ENABLE_TRIPLE_REMAPPING = process.env.DCR_ENABLE_TRIPLE_REMAPPING == 'true' ? true : false;
+export const ENABLE_CUSTOM_DISPATCH = !ENABLE_TRIPLE_REMAPPING; // disable custom dispatching if triple remapping is enabled
+export const REMAPPING_DATABASE = process.env.DCR_REMAPPING_DATABASE || 'database';
+export const REMAPPING_DATABASE_ENDPOINT = process.env.DCR_REMAPPING_DATABASE_ENDPOINT || `http://${REMAPPING_DATABASE}:8890/sparql`;
+export const REMAPPING_GRAPH = process.env.DCR_REMAPPING_GRAPH || 'http://mu.semte.ch/graphs/consumer-transformed';
 
 // MANDATORY SIMPLE
 if (!process.env.DCR_SYNC_BASE_URL)

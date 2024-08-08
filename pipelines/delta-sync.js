@@ -10,10 +10,10 @@ import {
   SERVICE_NAME,
   SYNC_FILES_ENDPOINT,
   WAIT_FOR_INITIAL_SYNC,
-  ENABLE_DELTA_CONTEXT,
-  ENABLE_SPARQL_MAPPING,
   LANDING_ZONE_GRAPH,
   LANDING_ZONE_DATABASE_ENDPOINT,
+  ENABLE_TRIPLE_REMAPPING,
+  ENABLE_CUSTOM_DISPATCH,
 } from '../config';
 import { STATUS_BUSY, STATUS_FAILED, STATUS_SUCCESS } from '../lib/constants';
 import DeltaFile from '../lib/delta-file';
@@ -83,27 +83,13 @@ async function runDeltaSync() {
         console.log(`Ingesting deltafile created on ${deltaFile.created}`);
         const task = await createDeltaSyncTask(JOBS_GRAPH, job, `${index}`, STATUS_BUSY, deltaFile, parentTask);
         try {
-          if (ENABLE_DELTA_CONTEXT) {
-          } else if (ENABLE_SPARQL_MAPPING) {
-            const { termObjectChangeSets, changeSets } = await deltaFile.load();
-            await deltaSparqlProcessing(changeSets);
-            // To be discussed: keep the custom dispatching when mapping is enabled
-            await deltaSyncDispatching.dispatch(
-              {
-                mu,
-                muAuthSudo,
-                fetch,
-                chunk,
-                sparqlEscapeUri: mu.sparqlEscapeUri,
-              },
-              { termObjectChangeSets },
-              constants,
-            );
-          } else {
-            const termObjectChangeSets = await deltaFile.load();
+          let { termObjectChangeSets, changeSets } = await deltaFile.load();
+          if (ENABLE_TRIPLE_REMAPPING) {
+            await remapTriplesInDeltas(changeSets);
+          }
+          if (ENABLE_CUSTOM_DISPATCH) {
             await deltaSyncDispatching.dispatch({ mu, muAuthSudo, fetch, chunk, sparqlEscapeUri: mu.sparqlEscapeUri }, { termObjectChangeSets }, constants);
           }
-
           await updateStatus(task, STATUS_SUCCESS);
           parentTask = task;
           console.log(`Sucessfully ingested deltafile created on ${deltaFile.created}`);

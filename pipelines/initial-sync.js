@@ -6,7 +6,7 @@ import {
   SERVICE_NAME,
   LANDING_ZONE_GRAPH,
   LANDING_ZONE_DATABASE_ENDPOINT,
-  ENABLE_SPARQL_MAPPING,
+  ENABLE_TRIPLE_REMAPPING,
 } from '../config';
 import {
   INITIAL_SYNC_TASK_OPERATION,
@@ -70,7 +70,7 @@ async function runInitialSync() {
       await updateStatus(task, STATUS_BUSY);
       await dumpFile.loadAndDispatch(initialSyncDispatching.dispatch);
 
-      if (ENABLE_SPARQL_MAPPING) {
+      if (ENABLE_TRIPLE_REMAPPING) {
         console.log('Start initial SPARQL mapping');
         await initialMapping();
       }
