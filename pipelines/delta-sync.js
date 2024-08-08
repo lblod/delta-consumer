@@ -85,7 +85,7 @@ async function runDeltaSync() {
         try {
           let { termObjectChangeSets, changeSets } = await deltaFile.load();
           if (ENABLE_TRIPLE_REMAPPING) {
-            await remapTriplesInDeltas(changeSets);
+            await deltaSparqlProcessing(changeSets);
           }
           if (ENABLE_CUSTOM_DISPATCH) {
             await deltaSyncDispatching.dispatch({ mu, muAuthSudo, fetch, chunk, sparqlEscapeUri: mu.sparqlEscapeUri }, { termObjectChangeSets }, constants);
