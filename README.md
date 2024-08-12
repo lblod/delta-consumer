@@ -63,7 +63,7 @@ When a delete occurs that breaks the `WHERE` part of a query, the entire matchin
 
 #### How Queries Are Matched with Triples
 
-All incoming delta triples (insert or delete) are processed one by one. The mapping queries are filtered based on whether the delta triple matches any triple patterns in the basic graph pattern of the `WHERE` clause. Only simple triple patterns are considered at this stage. Filters, subqueries, variable bindings, etc., are ignored.
+All incoming delta triples (insert or delete) are processed one by one. The mapping queries are filtered based on whether the delta triple matches any triple patterns in the basic graph pattern of the `WHERE` clause. **Only simple triple patterns are considered at this stage. Filters, subqueries, variable bindings, property paths, etc., are not yet supported and might cause unexpected behaviour.**
 
 **Example Delta Triple:**
 
@@ -91,6 +91,10 @@ CONSTRUCT {
 ```
 
 Once a match is identified, the delta triple values are bound to the respective variables, and the `INSERT` or `DELETE` query is executed against the target graph on the triplestore.
+
+For `DELETE` queries, the subject, predicate, and object of the delta triple are bound to the respective variables in the `WHERE` clause. The `CONSTRUCT` template is translated to a `DELETE` clause, and the resulting triples are deleted from the target graph.
+
+For `INSERT` queries, only the subject of the delta triple is bound to the respective variable in the `WHERE` clause. The `CONSTRUCT` template is translated to an `INSERT` clause, and the resulting triples are inserted into the target graph.
 
 #### Avoiding Unintended Deletes
 
