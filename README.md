@@ -65,7 +65,7 @@ This should start the consumer. This skips a lot of steps, such as the initial s
 This should start the consumer. This skips a lot of steps, such as the initial sync, but at least you will see things happening. It's very likely that your data won't be complete after it finishes, or if you thought, 'Oh, let's sync from `1970-01-01`,' it will take ages to complete.
 
 
-###  I'm not in a hurry and just want to get started.
+###  I'm not in a hurry.
 
 #### Add the service to a stack, with default behaviour.
 
