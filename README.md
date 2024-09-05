@@ -36,14 +36,9 @@ Then you can try to put the following in your `docker-compose.override.yml` file
 ```yaml
   the-name-of-the-consumer:
     environment:
-      DCR_WAIT_FOR_INITIAL_SYNC: "false"
-      DCR_DISABLE_INITIAL_SYNC: "true"
+      DCR_DISABLE_INITIAL_SYNC: "false"
       DCR_DISABLE_DELTA_INGEST: "false"
-      DCR_START_FROM_DELTA_TIMESTAMP: "2023-12-01" # From where it should start syncing in time; left empty it starts from "now".
-                                                   # Hence, very likely if you start it without this value, it won't consume anything.
-                                                   # Because producer hasn't produced anything yet.
 ```
-This should start the consumer. This skips a lot of steps, such as the initial sync, but at least you will see things happening. It's very likely that your data won't be complete after it finishes, or if you thought, 'Oh, let's sync from `1970-01-01`,' it will take ages to complete.
 
 #### I have an endpoint with deltas and just want to start consuming it. I don't care about bells and whistles.
 
