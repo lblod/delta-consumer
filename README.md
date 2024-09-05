@@ -24,7 +24,7 @@ We’ll figure it out together.
 
 ## Tutorials
 
-### I cloned an existing stack and just want it to start consuming. I have no clue how.
+### I cloned an existing stack, with a configured consumer, and just want it to start consuming. I have no clue how.
 
 Always ensure your migrations ran!
 
