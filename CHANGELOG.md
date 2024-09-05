@@ -1,3 +1,5 @@
+## 0.0.25
+ - SPARQL based re-mapping.
 ## 0.0.24
 - improved job-failure see [#19](https://github.com/lblod/delta-consumer/pull/19)
 ## 0.0.23
