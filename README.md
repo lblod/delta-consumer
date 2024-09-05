@@ -24,9 +24,11 @@ We’ll figure it out together.
 
 ## Tutorials
 
-### I have a consumer configured in an existing stack and just want it to start consuming. I have no clue how.
+### I cloned an existing stack and just want it to start consuming. I have no clue how.
 
-Can you try to put the following in your `docker-compose.override.yml` file?
+Always ensure your migrations ran!
+
+Then you can try to put the following in your `docker-compose.override.yml` file?
 ```yaml
   the-name-of-the-consumer:
     environment:
