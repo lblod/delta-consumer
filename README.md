@@ -30,6 +30,131 @@ The context is configured through `delta-context-config.js` which is covered in 
 
 The `DCR_LANDING_ZONE_GRAPH` is maintained by the delta-producer when this feature is and contains all the triples from the data-sources producer graph - without any filtering or other changes. This graph is used to lookup context and can be offloaded to a different triplestore than the main application database by providing the `DCR_LANDING_ZONE_DATABASE` environment variable.
 
+### Delta Message - SPARQL Mapping - :warning: EXPERIMENTAL
+
+The delta-consumer facilitates the mapping of incoming messages to a different model. This is achieved by providing SPARQL queries in the configuration directory. These queries are executed on the landing zone graph, and the results are used to update the target graph.
+
+Each triple from the delta message is processed individually.
+
+> [!WARNING]
+> Custom dispatching is **not** supported when using SPARQL mapping. i.e. the `dispatch` function will not be called. The `onFinish` hook after the initial sync is still available.
+
+#### Delete Operations
+
+When a delete occurs that breaks the `WHERE` part of a query, the entire matching `CONSTRUCT` clause is deleted from the target graph. cfr. [avoid unintended deletes](#avoiding-unintended-deletes).
+
+1. **Match queries for the statement.**
+2. **Delete resulting triples from the target graph:**
+   - The `CONSTRUCT` template is translated as to a `DELETE` clause
+   - The `WHERE` clause:
+     - Matching variables are bound to delta message values
+     - The triple pattern is scoped to the landing zone graph.
+3. **Delete the original triple from the landing zone.**
+
+#### Insert Operations
+
+1. **Insert the original triple into the landing zone.**
+2. **Match queries for the statement.**
+3. **Insert resulting triples into the target graph:**
+   - The `CONSTRUCT` template is translated as to a `INSERT` clause
+   - The `WHERE` clause:
+     - Matching variables are bound to delta message values.
+     - The triple pattern is scoped to the landing zone graph.
+
+#### How Queries Are Matched with Triples
+
+All incoming delta triples (insert or delete) are processed one by one. The mapping queries are filtered based on whether the delta triple matches any triple patterns in the basic graph pattern of the `WHERE` clause. **Only simple triple patterns are considered at this stage. Filters, subqueries, variable bindings, property paths, etc., are not yet supported and might cause unexpected behaviour.**
+
+**Example Delta Triple:**
+
+```SPARQL
+<http://example.org/subject#123> <http://example.org/property#foo> "bar".
+```
+
+**Example Matching Queries:**
+
+```SPARQL
+CONSTRUCT {
+  ?s ?p ?o
+} WHERE {
+  ?s ?p ?o.
+}
+```
+
+```SPARQL
+CONSTRUCT {
+  ?s <http://example.org/property#baz> ?baz.
+} WHERE {
+  ?s <http://example.org/property#foo> ?foo.
+  ?foo <http://example.org/property#bar> ?baz.
+}
+```
+
+Once a match is identified, the delta triple values are bound to the respective variables, and the `INSERT` or `DELETE` query is executed against the target graph on the triplestore.
+
+For `DELETE` queries, the subject, predicate, and object of the delta triple are bound to the respective variables in the `WHERE` clause. The `CONSTRUCT` template is translated to a `DELETE` clause, and the resulting triples are deleted from the target graph.
+
+For `INSERT` queries, only the subject of the delta triple is bound to the respective variable in the `WHERE` clause. The `CONSTRUCT` template is translated to an `INSERT` clause, and the resulting triples are inserted into the target graph.
+
+#### Avoiding Unintended Deletes
+
+Adding extra constraints may lead to **additional deletes**.
+
+**Example Mapping Query:**
+
+```SPARQL
+CONSTRUCT {
+  ?s ?p ?o .
+} WHERE {
+  ?s
+    a <http://example.org/type/X> ;
+    ?p ?o .
+}
+```
+
+This mapping query passes through all inserts/deletes when the subject of a delta triple has an `rdf:type` of `<http://example.org/type/X>`.
+
+**Example DELETE Delta Triple:**
+
+```SPARQL
+<http://example.org/subject#S> a <http://example.org/type/X>.
+```
+
+**Results in the following DELETE query on the triple store**
+
+```SPARQL
+DELETE {
+  GRAPH <http://example.org/target-graph> {
+    ?s ?p ?o .
+  }
+} WHERE {
+  GRAPH <http://example.org/landing-zone> {
+    ?s
+      a <http://example.org/type/X> ;
+      ?p ?o .
+    VALUES ?s { <http://example.org/subject#S> }
+  }
+}
+```
+
+This would lead to the deletion of ALL triples in the target graph where the subject is `<http://example.org/subject#S>`. This could be triggered when the type is changed, or an `rdf:type` is removed from a subject (even when other `rdf:types` remain in the source).
+
+**To avoid accidental deletes:**
+
+- Keep `CONSTRUCT` queries as minimal as possible, avoiding such patterns.
+- When additional constraints are needed in the `WHERE` clause, use `FILTER EXISTS`, which is ignored when filtering the queries. For example:
+
+```SPARQL
+CONSTRUCT {
+  ?s ?p ?o.
+} WHERE {
+  ?s ?p ?o.
+  FILTER EXISTS {
+    ?s a <http://example.org/type/X>.
+  }
+}
+```
+
 ## Tutorials
 
 ### Add the service to a stack, with default behaviour.
@@ -45,10 +170,10 @@ consumer:
   environment:
     DCR_SERVICE_NAME: 'your-custom-consumer-identifier' # replace with the desired consumer identifier
     DCR_SYNC_BASE_URL: 'http://base-sync-url' # replace with link the application hosting the producer server
-    DCR_SYNC_DATASET_SUBJECT: "http://data.lblod.info/datasets/delta-producer/dumps/CacheGraphDump"
-    DCR_INITIAL_SYNC_JOB_OPERATION: "http://redpencil.data.gift/id/jobs/concept/JobOperation/deltas/consumer/xyzInitialSync"
-    DCR_DELTA_SYNC_JOB_OPERATION: "http://redpencil.data.gift/id/jobs/concept/JobOperation/deltas/consumer/xyzDeltaFileSyncing"
-    DCR_JOB_CREATOR_URI: "http://data.lblod.info/services/id/consumer"
+    DCR_SYNC_DATASET_SUBJECT: 'http://data.lblod.info/datasets/delta-producer/dumps/CacheGraphDump'
+    DCR_INITIAL_SYNC_JOB_OPERATION: 'http://redpencil.data.gift/id/jobs/concept/JobOperation/deltas/consumer/xyzInitialSync'
+    DCR_DELTA_SYNC_JOB_OPERATION: 'http://redpencil.data.gift/id/jobs/concept/JobOperation/deltas/consumer/xyzDeltaFileSyncing'
+    DCR_JOB_CREATOR_URI: 'http://data.lblod.info/services/id/consumer'
     INGEST_GRAPH: 'http://uri/of/the/graph/to/ingest/the/information'
 ```
 
@@ -67,10 +192,10 @@ consumer:
   environment:
     DCR_SERVICE_NAME: 'your-custom-consumer-identifier' # replace with the desired consumer identifier
     DCR_SYNC_BASE_URL: 'http://base-sync-url' # replace with link the application hosting the producer server
-    DCR_SYNC_DATASET_SUBJECT: "http://data.lblod.info/datasets/delta-producer/dumps/CacheGraphDump"
-    DCR_INITIAL_SYNC_JOB_OPERATION: "http://redpencil.data.gift/id/jobs/concept/JobOperation/deltas/consumer/xyzInitialSync"
-    DCR_DELTA_SYNC_JOB_OPERATION: "http://redpencil.data.gift/id/jobs/concept/JobOperation/deltas/consumer/xyzDeltaFileSyncing"
-    DCR_JOB_CREATOR_URI: "http://data.lblod.info/services/id/consumer"
+    DCR_SYNC_DATASET_SUBJECT: 'http://data.lblod.info/datasets/delta-producer/dumps/CacheGraphDump'
+    DCR_INITIAL_SYNC_JOB_OPERATION: 'http://redpencil.data.gift/id/jobs/concept/JobOperation/deltas/consumer/xyzInitialSync'
+    DCR_DELTA_SYNC_JOB_OPERATION: 'http://redpencil.data.gift/id/jobs/concept/JobOperation/deltas/consumer/xyzDeltaFileSyncing'
+    DCR_JOB_CREATOR_URI: 'http://data.lblod.info/services/id/consumer'
   volumes:
     - ./config/consumer/example-custom-dispatching:/config/triples-dispatching/custom-dispatching
 ```
@@ -80,6 +205,9 @@ consumer:
 Please read further to find out more about the API of the hooks.
 
 ### Add the service to stack with delta context and custom behaviour (mapping and filtering through a reasoner service).
+
+> [!NOTE]
+> Consider using SPARQL mapping instead due to known issues with delete deletas.
 
 This is just one example where the delta context is necessary. The delta context is a way to provide extra information for custom triples-dispatching.
 
@@ -98,12 +226,12 @@ consumer:
   environment:
     DCR_SERVICE_NAME: 'your-custom-consumer-identifier' # replace with the desired consumer identifier
     DCR_SYNC_BASE_URL: 'http://base-sync-url' # replace with link the application hosting the producer server
-    DCR_SYNC_DATASET_SUBJECT: "http://data.lblod.info/datasets/delta-producer/dumps/CacheGraphDump"
-    DCR_INITIAL_SYNC_JOB_OPERATION: "http://redpencil.data.gift/id/jobs/concept/JobOperation/deltas/consumer/xyzInitialSync"
-    DCR_DELTA_SYNC_JOB_OPERATION: "http://redpencil.data.gift/id/jobs/concept/JobOperation/deltas/consumer/xyzDeltaFileSyncing"
-    DCR_JOB_CREATOR_URI: "http://data.lblod.info/services/id/consumer"
-    BYPASS_MU_AUTH_FOR_EXPENSIVE_QUERIES: "true"
-    TARGET_GRAPH: "http://graph/to/receive/the/processed/triples"
+    DCR_SYNC_DATASET_SUBJECT: 'http://data.lblod.info/datasets/delta-producer/dumps/CacheGraphDump'
+    DCR_INITIAL_SYNC_JOB_OPERATION: 'http://redpencil.data.gift/id/jobs/concept/JobOperation/deltas/consumer/xyzInitialSync'
+    DCR_DELTA_SYNC_JOB_OPERATION: 'http://redpencil.data.gift/id/jobs/concept/JobOperation/deltas/consumer/xyzDeltaFileSyncing'
+    DCR_JOB_CREATOR_URI: 'http://data.lblod.info/services/id/consumer'
+    BYPASS_MU_AUTH_FOR_EXPENSIVE_QUERIES: 'true'
+    REMAPPING_GRAPH: 'http://graph/to/receive/the/processed/triples'
   volumes:
     - ./config/consumer/example-custom-dispatching:/config/triples-dispatching/custom-dispatching
 reasoner:
@@ -145,7 +273,44 @@ When adding rules and queries to the reasoner, make sure the required context is
     ?s skos:prefLabel ?prefLabel.
   }.
 ```
+
 Note: there are multiple triggers for the same pattern in `delta-context-config.js` because the order of the delta messages is undetermined. When inserting new triples, there will only be sufficient context to execute the rule when the last part of the pattern arrives in a delta message. This might lead to mu
+
+### Add the service to a stack with SPARQL mapping
+
+> [!WARNING]
+> Please read the best practices even when you're familiar with SPARQL CONSTRUCT queries. The mapping of DELETE deltas might have some counterintuitive behaviour.
+
+There's an example configuration provided in `triples-dispatching/example-custom-distpatching-sparql`. This configuration consumes and maps `lblod/app-organization-portal`
+
+1. Copy the folder `triples-dispatching/example-custom-distpatching-sparql` into `config/consumer/`
+2. Add the following to your `docker-compose.yml`:
+
+```yaml
+image: lblod/delta-consumer
+    environment:
+      DCR_SYNC_BASE_URL: "https://organisaties.abb.lblod.info"
+      # DCR_SYNC_BASE_URL: "https://organisaties.abb.vlaanderen.be"
+      DCR_SERVICE_NAME: "op-consumer"
+      DCR_SYNC_FILES_PATH: "/sync/organizations-public-info/files"
+      DCR_SYNC_DATASET_SUBJECT: "http://data.lblod.info/datasets/delta-producer/dumps/OrganizationsPublicInfoCacheGraphDump"
+      DCR_INITIAL_SYNC_JOB_OPERATION: "http://redpencil.data.gift/id/jobs/concept/JobOperation/deltas/consumer/op"
+      DCR_DELTA_SYNC_JOB_OPERATION: "http://redpencil.data.gift/id/jobs/concept/JobOperation/deltas/consumer/opDeltaFileSyncing"
+      DCR_JOB_CREATOR_URI: "http://data.lblod.info/services/id/op-consumer"
+      DCR_KEEP_DELTA_FILES: "true"
+      DCR_DELTA_FILE_FOLDER: "/consumer-files"
+      DCR_DISABLE_DELTA_INGEST: "false"
+      DCR_DISABLE_INITIAL_SYNC: "false"
+      DCR_WAIT_FOR_INITIAL_SYNC: "true"
+      BYPASS_MU_AUTH_FOR_EXPENSIVE_QUERIES: "true"
+      DCR_REMAPPING_DATABASE: "virtuoso"
+      DCR_ENABLE_TRIPLE_REMAPPING: "true"
+      DCR_LANDING_ZONE_GRAPH: "http://mu.semte.ch/graphs/op-consumer-test
+      DCR_REMAPPING_GRAPH: "http://mu.semte.ch/graphs/op-consumer-test-transformed"
+    volumes:
+      - ./config/delta-consumer/mapping:/config/mapping
+      - ./config/delta-consumer/example-custom-distpatching-sparql:/config/triples-dispatching/custom-dispatching
+```
 
 ## Configuration
 
@@ -197,6 +362,18 @@ Delta context variables:
 - `DCR_LANDING_ZONE_GRAPH (default: http://mu.semte.ch/graphs/system/landingzone)`: Graph which maintains a mirror copy of the data-sources producer graph. It is the result of all the incoming insert/delete statements without any mapping or filtering. This graph is used to lookup context.
 - `DCR_LANDING_ZONE_DATABASE (default: database)`: consider using a different triplestore than the main application database.
 - `DCR_LANDING_ZONE_DATABASE_ENDPOINT (default: http://${DCR_LANDING_ZONE_DATABASE}:8890/sparql`) : the url of a sparql endpoint - overrules the `DCR_LANDING_ZONE_DATABASE` variable.
+
+SPARQL mapping variables:
+
+- `DCR_ENABLE_TRIPLE_REMAPPING (default: false)`: enable the SPARQL mapping feature.
+- `DCR_LANDING_ZONE_GRAPH (default: http://mu.semte.ch/graphs/system/landingzone)`: Graph which maintains a mirror copy of the data-sources producer graph. It is the result of all the incoming insert/delete statements without any mapping or filtering.
+- `DCR_REMAPPING_GRAPH (default: http://mu.semte.ch/graphs/consumer-transformed)`: Graph where the remapped triples are stored.
+- `DCR_REMAPPING_DATABASE (default: database)`: consider using a different triplestore than the main application database.
+- `DCR_REMAPPING_DATABASE_ENDPOINT (default: http://${DCR_REMAPPING_DATABASE}:8890/sparql`) : the url of a sparql endpoint - overrules the `DCR_REMAPPING_DATABASE` variable.
+- `DCR_MAPPING_QUERY_FOLDER (default: /config/mapping)`: the path where the mapping queries are stored.
+- `DCR_DIRECT_EXECUTE_EXPENSIVE_QUERIES (default: true)`: execute expensive queries directly on the triplestore. i.e. bypass mu-auth or sparql-parser.
+- `DCR_DIRECT_REMAPPING_DATABASE (default: virtuoso)`: the name of the database where the remapping graph is stored. This is used when the remapping graph is stored in a different database than the main application database.
+-
 
 #### Triples dispatching: single graph ingestion (default behaviour)
 

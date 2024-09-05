@@ -17,8 +17,7 @@ import { cleanupJob, getJobs } from './lib/job';
 import { deleteDeltaFilesForJob } from './lib/utils';
 import { startDeltaSync } from './pipelines/delta-sync';
 import { startInitialSync } from './pipelines/initial-sync';
-import { startDeltaCleanup } from "./pipelines/delta-cleanup";
-
+import { startDeltaCleanup } from './pipelines/delta-cleanup';
 
 const deltaSyncQueue = new ProcessingQueue('delta-sync-queue');
 
@@ -67,7 +66,7 @@ app.post('/delta-cleanup-jobs', async function( _, res ){
   res.send({ msg: 'Started delta cleanup job' });
 });
 
-app.post('/flush', async function( _, res ){
+app.post('/flush', async function (_, res) {
   const sleep = 30;
   const msg = `
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! \n

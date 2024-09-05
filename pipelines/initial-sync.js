@@ -1,9 +1,20 @@
 import {
-  DISABLE_INITIAL_SYNC, INITIAL_SYNC_JOB_OPERATION,
-  JOBS_GRAPH, JOB_CREATOR_URI, SERVICE_NAME,
-  LANDING_ZONE_GRAPH, LANDING_ZONE_DATABASE_ENDPOINT,
+  DISABLE_INITIAL_SYNC,
+  INITIAL_SYNC_JOB_OPERATION,
+  JOBS_GRAPH,
+  JOB_CREATOR_URI,
+  SERVICE_NAME,
+  LANDING_ZONE_GRAPH,
+  LANDING_ZONE_DATABASE_ENDPOINT,
+  ENABLE_TRIPLE_REMAPPING,
 } from '../config';
-import { INITIAL_SYNC_TASK_OPERATION, STATUS_BUSY, STATUS_FAILED, STATUS_SCHEDULED, STATUS_SUCCESS } from '../lib/constants';
+import {
+  INITIAL_SYNC_TASK_OPERATION,
+  STATUS_BUSY,
+  STATUS_FAILED,
+  STATUS_SCHEDULED,
+  STATUS_SUCCESS,
+} from '../lib/constants';
 import { createDeltaSyncTask } from '../lib/delta-sync-task';
 import { getLatestDumpFile } from '../lib/dump-file';
 import { createError, createJobError } from '../lib/error';
@@ -15,6 +26,7 @@ import * as muAuthSudo from '@lblod/mu-auth-sudo';
 import * as mu from 'mu';
 import * as fetch from 'node-fetch';
 import { chunk } from 'lodash';
+import { initialMapping } from '../lib/delta-sparql-mapping';
 export async function startInitialSync() {
   try {
     console.info(`DISABLE_INITIAL_SYNC: ${DISABLE_INITIAL_SYNC}`);
@@ -57,6 +69,11 @@ async function runInitialSync() {
     if (dumpFile) {
       await updateStatus(task, STATUS_BUSY);
       await dumpFile.loadAndDispatch(initialSyncDispatching.dispatch);
+
+      if (ENABLE_TRIPLE_REMAPPING) {
+        console.log('Start initial SPARQL mapping');
+        await initialMapping();
+      }
 
       if (initialSyncDispatching.onFinishInitialIngest) {
         console.log('Found onFinishInitialIngest, calling.');
