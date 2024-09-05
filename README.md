@@ -24,9 +24,13 @@ We’ll figure it out together.
 
 ## Tutorials
 
-### I cloned an existing stack, with a configured consumer, and just want it to start consuming. I have no clue how.
+### I'm in a hurry and just want to get started.
 
-Always ensure your migrations ran!
+Getting started indeed consumes (no pun intended) some brain space. Let's try to bundle these cases in the following section:
+
+#### I cloned an existing stack with a configured consumer, and I just want it to start consuming. I have no clue how.
+
+Always ensure your migrations have run!
 
 Then you can try to put the following in your `docker-compose.override.yml` file?
 ```yaml
@@ -41,7 +45,7 @@ Then you can try to put the following in your `docker-compose.override.yml` file
 ```
 This should start the consumer. This skips a lot of steps, such as the initial sync, but at least you will see things happening. It's very likely that your data won't be complete after it finishes, or if you thought, 'Oh, let's sync from `1970-01-01`,' it will take ages to complete.
 
-### I have an endpoint with deltas and just want to start consuming it. I don't care about bells and whistles.
+#### I have an endpoint with deltas and just want to start consuming it. I don't care about bells and whistles.
 
 ```yaml
   quickstart-consumer:
@@ -60,7 +64,10 @@ This should start the consumer. This skips a lot of steps, such as the initial s
 ```
 This should start the consumer. This skips a lot of steps, such as the initial sync, but at least you will see things happening. It's very likely that your data won't be complete after it finishes, or if you thought, 'Oh, let's sync from `1970-01-01`,' it will take ages to complete.
 
-### Add the service to a stack, with default behaviour.
+
+###  I'm not in a hurry and just want to get started.
+
+#### Add the service to a stack, with default behaviour.
 
 The default behaviour fetches the information from the producer and maintains a single ingest graph.
 To add this behaviour to your stack:
@@ -80,7 +87,7 @@ consumer:
     INGEST_GRAPH: 'http://uri/of/the/graph/to/ingest/the/information'
 ```
 
-### Add the service to a stack with custom behaviour.
+#### Add the service to a stack with custom behaviour.
 
 This service assumes hooks, where you can inject custom code.
 
@@ -107,7 +114,7 @@ consumer:
 
 Please read further to find out more about the API of the hooks.
 
-### Add the service to stack with delta context and custom behaviour (mapping and filtering through a reasoner service).
+#### Add the service to stack with delta context and custom behaviour (mapping and filtering through a reasoner service).
 
 > [!NOTE]
 > Consider using SPARQL mapping instead due to known issues with delete deletas.
@@ -179,7 +186,7 @@ When adding rules and queries to the reasoner, make sure the required context is
 
 Note: there are multiple triggers for the same pattern in `delta-context-config.js` because the order of the delta messages is undetermined. When inserting new triples, there will only be sufficient context to execute the rule when the last part of the pattern arrives in a delta message. This might lead to mu
 
-### Add the service to a stack with SPARQL mapping
+#### Add the service to a stack with SPARQL mapping
 
 > [!WARNING]
 > Please read the best practices even when you're familiar with SPARQL CONSTRUCT queries. The mapping of DELETE deltas might have some counterintuitive behaviour.
