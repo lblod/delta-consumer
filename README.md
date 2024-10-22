@@ -371,65 +371,6 @@ For `DELETE` queries, the subject, predicate, and object of the delta triple are
 
 For `INSERT` queries, only the subject of the delta triple is bound to the respective variable in the `WHERE` clause. The `CONSTRUCT` template is translated to an `INSERT` clause, and the resulting triples are inserted into the target graph.
 
-#### Avoiding Unintended Deletes
-
-Adding extra constraints may lead to **additional deletes**.
-
-**Example Mapping Query:**
-
-```SPARQL
-CONSTRUCT {
-  ?s ?p ?o .
-} WHERE {
-  ?s
-    a <http://example.org/type/X> ;
-    ?p ?o .
-}
-```
-
-This mapping query passes through all inserts/deletes when the subject of a delta triple has an `rdf:type` of `<http://example.org/type/X>`.
-
-**Example DELETE Delta Triple:**
-
-```SPARQL
-<http://example.org/subject#S> a <http://example.org/type/X>.
-```
-
-**Results in the following DELETE query on the triple store**
-
-```SPARQL
-DELETE {
-  GRAPH <http://example.org/target-graph> {
-    ?s ?p ?o .
-  }
-} WHERE {
-  GRAPH <http://example.org/landing-zone> {
-    ?s
-      a <http://example.org/type/X> ;
-      ?p ?o .
-    VALUES ?s { <http://example.org/subject#S> }
-  }
-}
-```
-
-This would lead to the deletion of ALL triples in the target graph where the subject is `<http://example.org/subject#S>`. This could be triggered when the type is changed, or an `rdf:type` is removed from a subject (even when other `rdf:types` remain in the source).
-
-**To avoid accidental deletes:**
-
-- Keep `CONSTRUCT` queries as minimal as possible, avoiding such patterns.
-- When additional constraints are needed in the `WHERE` clause, use `FILTER EXISTS`, which is ignored when filtering the queries. For example:
-
-```SPARQL
-CONSTRUCT {
-  ?s ?p ?o.
-} WHERE {
-  ?s ?p ?o.
-  FILTER EXISTS {
-    ?s a <http://example.org/type/X>.
-  }
-}
-```
-
 ### API
 
 There is a little debugger API available. Please check `app.js` to see how it works.
