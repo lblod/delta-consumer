@@ -1,3 +1,6 @@
+## 0.0.26
+ - Fix in variable binding (or substitution) in the mapping queries.
+     see: [#28](https://github.com/lblod/delta-consumer/pull/28)
 ## 0.0.25
  - SPARQL based re-mapping.
 ## 0.0.24
