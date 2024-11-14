@@ -71,9 +71,7 @@ async function runDeltaSync() {
 
   try {
     const latestDeltaTimestamp = await calculateLatestDeltaTimestamp();
-
-
-    let urlToCall = `${SYNC_FILES_ENDPOINT}?since=${latestDeltaTimestamp.toISOString()}&page=1`;
+    let urlToCall = `${SYNC_FILES_ENDPOINT}?since=${latestDeltaTimestamp.toISOString()}&page[number]=1`;
     let response = await getSortedUnconsumedFiles(urlToCall);
 
     const constants = { LANDING_ZONE_GRAPH, LANDING_ZONE_DATABASE_ENDPOINT };
