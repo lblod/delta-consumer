@@ -107,7 +107,9 @@ async function runDeltaSync() {
             console.error(`Something went wrong while ingesting deltafile created on ${deltaFile.created}`);
             console.error(e);
             await updateStatus(task, STATUS_FAILED);
-            throw e;
+            if (!Boolean.valueOf(process.env.SKIP_FAILED_JOB || "false")) {
+              throw e;
+            }
           }
         }
         if (urlToCall)
