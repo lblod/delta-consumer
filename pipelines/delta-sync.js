@@ -139,7 +139,7 @@ async function getSortedUnconsumedFiles(urlToCall) {
       }
     });
     const json = await response.json();
-    return { files: json.data.map(f => new DeltaFile(f)).sort(f => f.created), count: json.count, links: json.links };
+    return { files: json.data?.map(f => new DeltaFile(f)).sort(f => f.created), count: json.count, links: json.links };
   } catch (e) {
     console.log(`Unable to retrieve unconsumed files from ${SYNC_FILES_ENDPOINT}`);
     throw e;
