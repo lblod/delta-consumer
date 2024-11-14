@@ -79,7 +79,10 @@ async function runDeltaSync() {
 
     do {
       const sortedDeltafiles = response.files;
-      urlToCall = `${SYNC_FILES_ENDPOINT}${response?.links?.next}`;
+      if (response?.links?.next)
+        urlToCall = `${SYNC_FILES_ENDPOINT}${response.links.next}`;
+      else
+        urlToCall = undefined;
 
       if (sortedDeltafiles?.length) {
         job = await createJob(JOBS_GRAPH, DELTA_SYNC_JOB_OPERATION, JOB_CREATOR_URI, STATUS_BUSY);
