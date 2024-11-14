@@ -71,42 +71,53 @@ async function runDeltaSync() {
 
   try {
     const latestDeltaTimestamp = await calculateLatestDeltaTimestamp();
-    const sortedDeltafiles = await getSortedUnconsumedFiles(latestDeltaTimestamp);
+
+
+    let urlToCall = `${SYNC_FILES_ENDPOINT}?since=${latestDeltaTimestamp.toISOString()}&page=1`;
+    let response = await getSortedUnconsumedFiles(urlToCall);
 
     const constants = { LANDING_ZONE_GRAPH, LANDING_ZONE_DATABASE_ENDPOINT };
 
-    if (sortedDeltafiles.length) {
-      job = await createJob(JOBS_GRAPH, DELTA_SYNC_JOB_OPERATION, JOB_CREATOR_URI, STATUS_BUSY);
+    do {
+      const sortedDeltafiles = response.files;
+      urlToCall = response?.links?.next;
 
-      let parentTask;
-      for (const [index, deltaFile] of sortedDeltafiles.entries()) {
-        console.log(`Ingesting deltafile created on ${deltaFile.created}`);
-        const task = await createDeltaSyncTask(JOBS_GRAPH, job, `${index}`, STATUS_BUSY, deltaFile, parentTask);
-        try {
-          let { termObjectChangeSets, changeSets } = await deltaFile.load();
-          if (ENABLE_TRIPLE_REMAPPING) {
-            await deltaSparqlProcessing(changeSets);
+      if (sortedDeltafiles?.length) {
+        job = await createJob(JOBS_GRAPH, DELTA_SYNC_JOB_OPERATION, JOB_CREATOR_URI, STATUS_BUSY);
+
+        let parentTask;
+        for (const [index, deltaFile] of sortedDeltafiles.entries()) {
+          console.log(`Ingesting deltafile created on ${deltaFile.created}`);
+          const task = await createDeltaSyncTask(JOBS_GRAPH, job, `${index}`, STATUS_BUSY, deltaFile, parentTask);
+          try {
+            let { termObjectChangeSets, changeSets } = await deltaFile.load();
+            if (ENABLE_TRIPLE_REMAPPING) {
+              await deltaSparqlProcessing(changeSets);
+            }
+            if (ENABLE_CUSTOM_DISPATCH) {
+              await deltaSyncDispatching.dispatch({ mu, muAuthSudo, fetch, chunk, sparqlEscapeUri: mu.sparqlEscapeUri }, { termObjectChangeSets }, constants);
+            }
+            await updateStatus(task, STATUS_SUCCESS);
+            parentTask = task;
+            console.log(`Sucessfully ingested deltafile created on ${deltaFile.created}`);
           }
-          if (ENABLE_CUSTOM_DISPATCH) {
-            await deltaSyncDispatching.dispatch({ mu, muAuthSudo, fetch, chunk, sparqlEscapeUri: mu.sparqlEscapeUri }, { termObjectChangeSets }, constants);
+          catch (e) {
+            console.error(`Something went wrong while ingesting deltafile created on ${deltaFile.created}`);
+            console.error(e);
+            await updateStatus(task, STATUS_FAILED);
+            throw e;
           }
-          await updateStatus(task, STATUS_SUCCESS);
-          parentTask = task;
-          console.log(`Sucessfully ingested deltafile created on ${deltaFile.created}`);
         }
-        catch (e) {
-          console.error(`Something went wrong while ingesting deltafile created on ${deltaFile.created}`);
-          console.error(e);
-          await updateStatus(task, STATUS_FAILED);
-          throw e;
-        }
+        if (urlToCall)
+          response = await getSortedUnconsumedFiles(urlToCall);
       }
 
-      await updateStatus(job, STATUS_SUCCESS);
+      else {
+        console.log(`No new deltas published since ${latestDeltaTimestamp}: nothing to do.`);
+      }
     }
-    else {
-      console.log(`No new deltas published since ${latestDeltaTimestamp}: nothing to do.`);
-    }
+    while (urlToCall);
+    await updateStatus(job, STATUS_SUCCESS);
   }
   catch (error) {
     if (job) {
@@ -119,9 +130,8 @@ async function runDeltaSync() {
   }
 }
 
-async function getSortedUnconsumedFiles(since) {
+async function getSortedUnconsumedFiles(urlToCall) {
   try {
-    const urlToCall = `${SYNC_FILES_ENDPOINT}?since=${since.toISOString()}`;
     console.log(`Fetching delta files with url: ${urlToCall}`);
     const response = await fetcher(urlToCall, {
       headers: {
@@ -129,7 +139,7 @@ async function getSortedUnconsumedFiles(since) {
       }
     });
     const json = await response.json();
-    return json.data.map(f => new DeltaFile(f)).sort(f => f.created);
+    return { files: json.data.map(f => new DeltaFile(f)).sort(f => f.created), count: json.count, links: json.links };
   } catch (e) {
     console.log(`Unable to retrieve unconsumed files from ${SYNC_FILES_ENDPOINT}`);
     throw e;
