@@ -71,6 +71,7 @@ async function runDeltaSync() {
 
   try {
     const latestDeltaTimestamp = await calculateLatestDeltaTimestamp();
+
     let urlToCall = `${SYNC_FILES_ENDPOINT}?since=${latestDeltaTimestamp.toISOString()}&page[number]=1`;
     let response = await getSortedUnconsumedFiles(urlToCall);
 
@@ -78,7 +79,7 @@ async function runDeltaSync() {
 
     do {
       const sortedDeltafiles = response.files;
-      urlToCall = response?.links?.next;
+      urlToCall = `${SYNC_FILES_ENDPOINT}${response?.links?.next}`;
 
       if (sortedDeltafiles?.length) {
         job = await createJob(JOBS_GRAPH, DELTA_SYNC_JOB_OPERATION, JOB_CREATOR_URI, STATUS_BUSY);
