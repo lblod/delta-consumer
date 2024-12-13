@@ -57,7 +57,7 @@ Then you can try to put the following in your `docker-compose.override.yml` file
       DCR_WAIT_FOR_INITIAL_SYNC: "false"
       DCR_DISABLE_INITIAL_SYNC: "true"
 ```
-This should start the consumer. This skips a lot of steps, such as the initial sync, but at least you will see things happening. It's very likely that your data won't be complete after it finishes, or if you thought, 'Oh, let's sync from `1970-01-01`,' it will take ages to complete.
+This should start the consumer. This skips a lot of steps, such as the initial sync, but at least you will see things happening. If you thought, 'Oh, let's sync from `1970-01-01`,' it will take ages to complete.
 
 
 ###  I'm not in a hurry.
