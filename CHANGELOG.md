@@ -1,3 +1,6 @@
+## 0.0.27
+ - Fix bug in handling `lang` strings not being according to `rdf/json`
+   - see: [#30](https://github.com/lblod/delta-consumer/pull/30)
 ## 0.0.26
  - Fix in variable binding (or substitution) in the mapping queries.
      see: [#28](https://github.com/lblod/delta-consumer/pull/28)
