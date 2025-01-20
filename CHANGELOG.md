@@ -1,3 +1,6 @@
+## 0.1.0
+ - Fix another bug in handling language tags: use both `xml:lang` and `lang`. Thanks to @cecemel for pointing out the cause of the problems. This is a breaking change as it changes the way deltas (with language tags) are parsed and executed onto the triplestore. **If producer data can contain language tags, make sure to flush data and sync job data, before performing a re-sync.**
+   - see [#31](https://github.com/lblod/delta-consumer/pull/31)
 ## 0.0.27
  - Fix bug in handling `lang` strings not being according to `rdf/json`
    - see: [#30](https://github.com/lblod/delta-consumer/pull/30)
