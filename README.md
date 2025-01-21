@@ -1,6 +1,6 @@
 # delta-consumer
 
-:warning: Upgrading from v0.0.X to v0.Y.X requires consumed triples to be removed from the consumer app, provided the produced delta stream contains language-tagged strings. Feel free to get in touch for questions.
+:warning: Upgrading from v0.0.X to v0.Y.Z requires consumed triples to be removed from the consumer app, provided the produced delta stream contains language-tagged strings. Feel free to get in touch for questions.
 
 ## Intro
 
