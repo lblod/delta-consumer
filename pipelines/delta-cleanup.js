@@ -1,4 +1,4 @@
-import { STATUS_BUSY, STATUS_FAILED, STATUS_SUCCESS, PREFIXES } from '../lib/constants';
+import { STATUS_BUSY, STATUS_FAILED, STATUS_SUCCESS,  } from '../lib/constants';
 import { DELTA_JOBS_RETENTION_PERIOD,
          JOBS_GRAPH,
          SERVICE_NAME,
@@ -9,6 +9,7 @@ import { cleanupJob, getJobs, getLatestJobForOperation } from '../lib/job';
 import { createError } from "../lib/error";
 
 export async function startDeltaCleanup() {
+  console.log('Starting delta cleanup...');
   try {
     // a retention period of -1 indicates JOBS should not be removed
     if (DELTA_JOBS_RETENTION_PERIOD > -1) {
@@ -23,6 +24,7 @@ export async function startDeltaCleanup() {
                                  [],
                                  cleanupTimestamp
                                 );
+      console.log(`Jobs to clean count: ${jobsToClean?.length}`)
 
       // Ensure we don't remove the last successful job.
       // Since used to calculate the next delta time stamp to ingest
@@ -31,17 +33,20 @@ export async function startDeltaCleanup() {
                                                        [STATUS_SUCCESS]);
 
       if(latestJob) {
+        console.log(`Filtering latest successful job.`);
         jobsToClean = jobsToClean.filter(j => j.job !== latestJob.job);
       }
 
       for(const job of jobsToClean) {
+        console.log(`Cleanup job with uri ${job?.job}`);
         await deleteDeltaFilesForJob(job);
         await cleanupJob(job.job);
       }
+      console.log(`Cleanup done.`);
     }
   }
   catch (e) {
-    console.log(e);
+    console.log("error while cleaninup up delta", e);
     await createError(JOBS_GRAPH, SERVICE_NAME, `Unexpected error while running delta file cleanup task: ${e}`);
   }
 }

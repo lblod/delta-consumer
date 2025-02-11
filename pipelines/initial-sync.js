@@ -95,7 +95,7 @@ async function runInitialSync() {
   }
   catch (e) {
     console.log(`Something went wrong while doing the initial sync. Closing task with failure state.`);
-    console.trace(e);
+    console.log("error:", e);
     if (task)
       await updateStatus(task, STATUS_FAILED);
     if (job) {
