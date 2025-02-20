@@ -1,3 +1,6 @@
+## 0.1.2
+ - Fix to allow import statements in files mounted under `/config`; i.e. for the custom dispatching.
+     https://github.com/lblod/delta-consumer/pull/34
 ## 0.1.1
  - Fix (new) bug with lang strings: a variable wasn't assigned
 ## 0.1.0
