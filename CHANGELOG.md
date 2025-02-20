@@ -1,3 +1,6 @@
+## 0.1.3
+ - Bump JS template
+ - Bugfix: still an issue with custom dispatching, that because `/config` must exist in the service.
 ## 0.1.2
  - Fix to allow import statements in files mounted under `/config`; i.e. for the custom dispatching.
      https://github.com/lblod/delta-consumer/pull/34
