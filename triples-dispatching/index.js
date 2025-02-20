@@ -1,10 +1,10 @@
 import { ENABLE_CUSTOM_DISPATCH } from "../config";
 
-const initialSyncDispatching = tryLoadModule('/config/triples-dispatching/custom-dispatching/initial-sync-dispatching',
+const initialSyncDispatching = tryLoadModule('./../config/triples-dispatching/custom-dispatching/initial-sync-dispatching',
   './single-graph-dispatching/initial-sync-dispatching');
-const deltaSyncDispatching = tryLoadModule('/config/triples-dispatching/custom-dispatching/delta-sync-dispatching',
+const deltaSyncDispatching = tryLoadModule('./../config/triples-dispatching/custom-dispatching/delta-sync-dispatching',
   './single-graph-dispatching/delta-sync-dispatching');
-const deltaContextConfiguration = tryLoadModule('/config/triples-dispatching/custom-dispatching/delta-context-config',
+const deltaContextConfiguration = tryLoadModule('./../config/triples-dispatching/custom-dispatching/delta-context-config',
   './single-graph-dispatching/delta-context-config');
 
 function tryLoadModule(targetModulePath, fallbackModulePath) {
