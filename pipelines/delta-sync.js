@@ -125,7 +125,8 @@ async function getSortedUnconsumedFiles(since) {
     console.log(`Fetching delta files with url: ${urlToCall}`);
     const response = await fetcher(urlToCall, {
       headers: {
-        'Accept': 'application/vnd.api+json'
+        'Accept': 'application/vnd.api+json',
+        'Accept-encoding': 'deflate,gzip',
       }
     });
     const json = await response.json();
