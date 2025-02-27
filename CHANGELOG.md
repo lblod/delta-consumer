@@ -1,3 +1,6 @@
+## 0.1.4
+  - Added `accept-encoding` headers to speed up transmission
+    - https://github.com/lblod/delta-consumer/pull/35
 ## 0.1.3
  - Bump JS template
  - Bugfix: still an issue with custom dispatching, that because `/config` must exist in the service.
