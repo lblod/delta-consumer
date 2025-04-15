@@ -1,3 +1,6 @@
+## 0.1.5
+ - Use `N3.js` streams to handle the initial ingest.
+   https://github.com/lblod/delta-consumer/pull/36
 ## 0.1.4
   - Added `accept-encoding` headers to speed up transmission
     - https://github.com/lblod/delta-consumer/pull/35
