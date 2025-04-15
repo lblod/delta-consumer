@@ -84,7 +84,7 @@ app.post('/flush', async function (_, res) {
   `;
   console.warn(msg);
   res.send({ msg });
-  await new Promise(r => setTimeout(r, 30*1000));
+  await new Promise(r => setTimeout(r, sleep*1000));
   console.log(`Starting flush`);
 
   try {
