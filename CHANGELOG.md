@@ -1,3 +1,5 @@
+## 0.1.6
+ - update woodpecker config
 ## 0.1.5
  - Use `N3.js` streams to handle the initial ingest.
    https://github.com/lblod/delta-consumer/pull/36
