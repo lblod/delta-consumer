@@ -248,6 +248,9 @@ Each triple from the delta message is processed individually.
 
 When a delete occurs that breaks the `WHERE` part of a query, the entire matching `CONSTRUCT` clause is deleted from the target graph. See [avoiding unintended deletes](#avoiding-unintended-deletes).
 
+> [!WARNING]
+> There is currently a bug in virtuoso causing deletion of plain text string with special characters to do nothing in the ingest and destination graphs. See [avoiding bug when deleting strings with special characters](#avoiding-bug-when-deleting-strings-with-special-characters) on which workaround can be used until the bug gets fixed. More info and a real life example [here](https://github.com/lblod/app-contactgegevens-loket/pull/50).
+
 1. **Match queries for the statement.**
 2. **Delete resulting triples from the target graph:**
    - The `CONSTRUCT` template is translated into a `DELETE` clause.
@@ -359,6 +362,65 @@ CONSTRUCT {
   }
 }
 ```
+
+#### Avoiding Bug When Deleting Strings With Special Characters
+
+When the consumer tries to delete a string containing a special character (such as `ë`), virtuoso wrongly considers the string as a `typed-literal` of datatype `http://www.w3.org/2001/XMLSchema#string`, meaning it'll try to do the following delete:
+```SPARQL
+DELETE DATA
+{
+  GRAPH <http://mu.semte.ch/graphs/ingest>
+  {
+    <http://data.lblod.info/id/adressen/e112cd28e2b9c337fb5499bbc5c81065> <http://www.w3.org/ns/locn#fullAddress> """Heuvelplein 23, 2910 Essen, België""" ^^ <http://www.w3.org/2001/XMLSchema#string>
+  }
+}
+```
+which does nothing because the delete that would actually work is
+```SPARQL
+DELETE DATA
+{
+  GRAPH <http://mu.semte.ch/graphs/ingest>
+  {
+    <http://data.lblod.info/id/adressen/e112cd28e2b9c337fb5499bbc5c81065> <http://www.w3.org/ns/locn#fullAddress> """Heuvelplein 23, 2910 Essen, België"""
+  }
+}
+```
+
+The following workaround can be used in your mapping files to force virtuoso to recognize the string as a simple `literal` instead of a `typed-literal` and to then apply the correct delete query. Instead of mapping the affected strings like
+```SPARQL
+PREFIX locn: <http://www.w3.org/ns/locn#>
+
+CONSTRUCT {
+  ?s ?p ?o .
+} WHERE {
+  ?s a locn:Address;
+    ?p ?o.
+
+  FILTER (?p IN (
+    locn:fullAddress
+  ))
+}
+```
+use this workaround
+```SPARQL
+PREFIX locn: <http://www.w3.org/ns/locn#>
+
+CONSTRUCT {
+  ?s ?p ?oString .
+} WHERE {
+  ?s a locn:Address;
+    ?p ?o.
+
+  FILTER (?p IN (
+    locn:fullAddress
+  ))
+
+  BIND(CONCAT(str(?o)) AS ?oString)
+}
+```
+
+> [!WARNING]
+> Do not use this on strings that are purposely typed, such as lang string.
 
 ### API
 
