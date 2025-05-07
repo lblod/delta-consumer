@@ -111,78 +111,6 @@ consumer:
 
 Please read further to find out more about the API of the hooks.
 
-#### Add the service to stack with delta context and custom behaviour (mapping and filtering through a reasoner service).
-
-> [!NOTE]
-> Consider using SPARQL mapping instead due to known issues with delete deletas.
-
-This is just one example where the delta context is necessary. The delta context is a way to provide extra information for custom triples-dispatching.
-
-In this example, we will use the delta context to map and filter the incoming triples. The mapping and filtering is done by a [reasoning service](https://github.com/eyereasoner/reasoning-service).
-
-For your convenience, we've added an example custom hook in `./triples-dispatching/example-custom-dispatching-reasoning-with-context`.
-
-1. Copy the folder `example-custom-dispatching-reasoning-with-context/consumer/` into `config/consumer/`
-2. Copy the folder
-   ``example-custom-dispatching-reasoning-with-context/consumer/reasoner/` into `config/reasoner/`
-3. Add the following to your `docker-compose.yml`:
-
-```yaml
-consumer:
-  image: lblod/delta-consumer
-  environment:
-    DCR_SERVICE_NAME: 'your-custom-consumer-identifier' # replace with the desired consumer identifier
-    DCR_SYNC_BASE_URL: 'http://base-sync-url' # replace with link the application hosting the producer server
-    DCR_SYNC_DATASET_SUBJECT: 'http://data.lblod.info/datasets/delta-producer/dumps/CacheGraphDump'
-    DCR_INITIAL_SYNC_JOB_OPERATION: 'http://redpencil.data.gift/id/jobs/concept/JobOperation/deltas/consumer/xyzInitialSync'
-    DCR_DELTA_SYNC_JOB_OPERATION: 'http://redpencil.data.gift/id/jobs/concept/JobOperation/deltas/consumer/xyzDeltaFileSyncing'
-    DCR_JOB_CREATOR_URI: 'http://data.lblod.info/services/id/consumer'
-    BYPASS_MU_AUTH_FOR_EXPENSIVE_QUERIES: 'true'
-    REMAPPING_GRAPH: 'http://graph/to/receive/the/processed/triples'
-  volumes:
-    - ./config/consumer/example-custom-dispatching:/config/triples-dispatching/custom-dispatching
-reasoner:
-  image: eyereasoner/reasoning-service:1.0.1
-  volumes:
-    - ./config/reasoner:/config
-```
-
-3. Start the stack. The console will print the fetched information from the producer.
-
-When adding rules and queries to the reasoner, make sure the required context is configured for pattern in the premise.:
-
-- Make sure to enable `addTypes` in the `delta-context-config.js` file. For rules with and `rdf:type` in the premise. e.g.
-
-```
-  {
-    ?s
-      a ex:foo;
-      ex:bar ?o.
-  } => {
-    ?s ex:baz ?o.
-  }.
-```
-
-- add custom context to the `delta-context-config.js` file for more complex patterns in the premise. e.g.
-
-```
-  {
-    ?s
-      a ex:foo;
-      ex:bar ?bar.
-      ex:classification ?classification.
-    ?bar
-      rdfs:label ?barLabel.
-    ?classification
-      skos:prefLabel ?classificationLabel.
-    (?classificationLabel ?barLabel) string:concatenation ?prefLabel.
-  } => {
-    ?s skos:prefLabel ?prefLabel.
-  }.
-```
-
-Note: there are multiple triggers for the same pattern in `delta-context-config.js` because the order of the delta messages is undetermined. When inserting new triples, there will only be sufficient context to execute the rule when the last part of the pattern arrives in a delta message. This might lead to mu
-
 #### Add the service to a stack with SPARQL mapping
 
 > [!WARNING]
@@ -320,6 +248,9 @@ Each triple from the delta message is processed individually.
 
 When a delete occurs that breaks the `WHERE` part of a query, the entire matching `CONSTRUCT` clause is deleted from the target graph. See [avoiding unintended deletes](#avoiding-unintended-deletes).
 
+> [!WARNING]
+> There is currently a bug in virtuoso causing deletion of plain text string with special characters to do nothing in the ingest and destination graphs. See [avoiding bug when deleting strings with special characters](#avoiding-bug-when-deleting-strings-with-special-characters) on which workaround can be used until the bug gets fixed. More info and a real life example [here](https://github.com/lblod/app-contactgegevens-loket/pull/50).
+
 1. **Match queries for the statement.**
 2. **Delete resulting triples from the target graph:**
    - The `CONSTRUCT` template is translated into a `DELETE` clause.
@@ -372,6 +303,124 @@ Once a match is identified, the delta triple values are bound to the respective 
 For `DELETE` queries, the subject, predicate, and object of the delta triple are bound to the respective variables in the `WHERE` clause. The `CONSTRUCT` template is translated to a `DELETE` clause, and the resulting triples are deleted from the target graph.
 
 For `INSERT` queries, only the subject of the delta triple is bound to the respective variable in the `WHERE` clause. The `CONSTRUCT` template is translated to an `INSERT` clause, and the resulting triples are inserted into the target graph.
+
+#### Avoiding Unintended Deletes
+
+Adding extra constraints may lead to **additional deletes**.
+
+**Example Mapping Query:**
+
+```SPARQL
+CONSTRUCT {
+  ?s ?p ?o .
+} WHERE {
+  ?s
+    a <http://example.org/type/X> ;
+    ?p ?o .
+}
+```
+
+This mapping query passes through all inserts/deletes when the subject of a delta triple has an `rdf:type` of `<http://example.org/type/X>`.
+
+**Example DELETE Delta Triple:**
+
+```SPARQL
+<http://example.org/subject#S> a <http://example.org/type/X>.
+```
+
+**Results in the following DELETE query on the triple store**
+
+```SPARQL
+DELETE {
+  GRAPH <http://example.org/target-graph> {
+    ?s ?p ?o .
+  }
+} WHERE {
+  GRAPH <http://example.org/landing-zone> {
+    ?s
+      a <http://example.org/type/X> ;
+      ?p ?o .
+    VALUES ?s { <http://example.org/subject#S> }
+  }
+}
+```
+
+This would lead to the deletion of ALL triples in the target graph where the subject is `<http://example.org/subject#S>`. This could be triggered when the type is changed, or an `rdf:type` is removed from a subject (even when other `rdf:types` remain in the source).
+
+**To avoid accidental deletes:**
+
+- Keep `CONSTRUCT` queries as minimal as possible, avoiding such patterns.
+- When additional constraints are needed in the `WHERE` clause, use `FILTER EXISTS`, which is ignored when filtering the queries. For example:
+
+```SPARQL
+CONSTRUCT {
+  ?s ?p ?o.
+} WHERE {
+  ?s ?p ?o.
+  FILTER EXISTS {
+    ?s a <http://example.org/type/X>.
+  }
+}
+```
+
+#### Avoiding Bug When Deleting Strings With Special Characters
+
+When the consumer tries to delete a string containing a special character (such as `ë`), virtuoso wrongly considers the string as a `typed-literal` of datatype `http://www.w3.org/2001/XMLSchema#string`, meaning it'll try to do the following delete:
+```SPARQL
+DELETE DATA
+{
+  GRAPH <http://mu.semte.ch/graphs/ingest>
+  {
+    <http://data.lblod.info/id/adressen/e112cd28e2b9c337fb5499bbc5c81065> <http://www.w3.org/ns/locn#fullAddress> """Heuvelplein 23, 2910 Essen, België""" ^^ <http://www.w3.org/2001/XMLSchema#string>
+  }
+}
+```
+which does nothing because the delete that would actually work is
+```SPARQL
+DELETE DATA
+{
+  GRAPH <http://mu.semte.ch/graphs/ingest>
+  {
+    <http://data.lblod.info/id/adressen/e112cd28e2b9c337fb5499bbc5c81065> <http://www.w3.org/ns/locn#fullAddress> """Heuvelplein 23, 2910 Essen, België"""
+  }
+}
+```
+
+The following workaround can be used in your mapping files to force virtuoso to recognize the string as a simple `literal` instead of a `typed-literal` and to then apply the correct delete query. Instead of mapping the affected strings like
+```SPARQL
+PREFIX locn: <http://www.w3.org/ns/locn#>
+
+CONSTRUCT {
+  ?s ?p ?o .
+} WHERE {
+  ?s a locn:Address;
+    ?p ?o.
+
+  FILTER (?p IN (
+    locn:fullAddress
+  ))
+}
+```
+use this workaround
+```SPARQL
+PREFIX locn: <http://www.w3.org/ns/locn#>
+
+CONSTRUCT {
+  ?s ?p ?oString .
+} WHERE {
+  ?s a locn:Address;
+    ?p ?o.
+
+  FILTER (?p IN (
+    locn:fullAddress
+  ))
+
+  BIND(CONCAT(str(?o)) AS ?oString)
+}
+```
+
+> [!WARNING]
+> Do not use this on strings that are purposely typed, such as lang string.
 
 ### API
 
