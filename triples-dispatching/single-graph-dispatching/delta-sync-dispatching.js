@@ -22,7 +22,7 @@ const endpoint = BYPASS_MU_AUTH_FOR_EXPENSIVE_QUERIES ? DIRECT_DATABASE_ENDPOINT
  * @return {void} Nothing
  */
 async function dispatch(lib, data) {
-  const { mu, } = lib;
+  const { mu,  } = lib;
   const { termObjectChangeSets } = data;
 
   for (let { deletes, inserts } of termObjectChangeSets) {
@@ -32,10 +32,9 @@ async function dispatch(lib, data) {
     }
     console.log(`Using ${endpoint} to insert triples`);
 
-    const deleteStatements = deletes.map(o => `${o.subject} ${o.predicate} ${o.object}.`);
     await batchedUpdate(
       lib,
-      deleteStatements,
+      deletes,
       INGEST_GRAPH,
       SLEEP_BETWEEN_BATCHES,
       BATCH_SIZE,
@@ -44,10 +43,9 @@ async function dispatch(lib, data) {
       "DELETE"
     );
 
-    const insertStatements = inserts.map(o => `${o.subject} ${o.predicate} ${o.object}.`);
     await batchedUpdate(
       lib,
-      insertStatements,
+      inserts,
       INGEST_GRAPH,
       SLEEP_BETWEEN_BATCHES,
       BATCH_SIZE,

@@ -3,12 +3,8 @@ const { BYPASS_MU_AUTH_FOR_EXPENSIVE_QUERIES,
   DIRECT_DATABASE_ENDPOINT,
   MU_CALL_SCOPE_ID_INITIAL_SYNC,
   BATCH_SIZE,
-  MAX_DB_RETRY_ATTEMPTS,
   SLEEP_BETWEEN_BATCHES,
-  SLEEP_TIME_AFTER_FAILED_DB_OPERATION,
   TARGET_GRAPH,
-  DCR_LANDING_ZONE_GRAPH,
-  DCR_LANDING_ZONE_DATABASE_ENDPOINT
 } = require('./config');
 const endpoint = BYPASS_MU_AUTH_FOR_EXPENSIVE_QUERIES ? DIRECT_DATABASE_ENDPOINT : process.env.MU_SPARQL_ENDPOINT;
 
@@ -32,8 +28,6 @@ async function dispatch(lib, data) {
 async function onFinishInitialIngest(lib, constants) {
   const { muAuthSudo, fetch } = lib;
 
-  const { LANDING_ZONE_GRAPH, LANDING_ZONE_DATABASE_ENDPOINT } = constants;
-  
   const transformedInsertTriples = await transformLandingZoneGraph(fetch, constants);
 
   console.log(`Transformed ${transformedInsertTriples.length} triples`);
@@ -45,9 +39,7 @@ async function onFinishInitialIngest(lib, constants) {
     { 'mu-call-scope-id': MU_CALL_SCOPE_ID_INITIAL_SYNC },
     endpoint,
     BATCH_SIZE,
-    MAX_DB_RETRY_ATTEMPTS,
     SLEEP_BETWEEN_BATCHES,
-    SLEEP_TIME_AFTER_FAILED_DB_OPERATION
   );
 }
 

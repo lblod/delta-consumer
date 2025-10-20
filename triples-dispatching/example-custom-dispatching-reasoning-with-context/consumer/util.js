@@ -1,11 +1,8 @@
 const {
   MAX_REASONING_RETRY_ATTEMPTS,
   SLEEP_TIME_AFTER_FAILED_REASONING_OPERATION,
-  MAX_DB_RETRY_ATTEMPTS,
   SLEEP_BETWEEN_BATCHES,
-  SLEEP_TIME_AFTER_FAILED_DB_OPERATION,
   TARGET_GRAPH,
-  DELETE_GRAPH,
   BATCH_SIZE,
   TARGET_DATABASE_ENDPOINT
 } = require('./config');
@@ -16,9 +13,7 @@ async function batchedDbUpdate(muUpdate,
   extraHeaders,
   endpoint,
   batchSize,
-  maxAttempts,
   sleepBetweenBatches = 1000,
-  sleepTimeOnFail = 1000,
   operation = 'INSERT'
 ) {
 
@@ -34,10 +29,10 @@ GRAPH <${graph}> {
 ${batch}
 }
 }
-`, extraHeaders, endpoint);
+`, extraHeaders, {sparqlEndpoint: endpoint, mayRetry: true});
     };
+    await insertCall(); // mu auth sudo does the retry
 
-    await operationWithRetry(insertCall, 0, maxAttempts, sleepTimeOnFail);
 
     console.log(`Sleeping before next query execution: ${sleepBetweenBatches}`);
     await new Promise(r => setTimeout(r, sleepBetweenBatches));
@@ -130,9 +125,7 @@ async function deleteFromTargetGraph(lib, statements) {
     {},
     TARGET_DATABASE_ENDPOINT,
     BATCH_SIZE,
-    MAX_DB_RETRY_ATTEMPTS,
     SLEEP_BETWEEN_BATCHES,
-    SLEEP_TIME_AFTER_FAILED_DB_OPERATION,
     'DELETE');
 }
 
@@ -147,9 +140,7 @@ async function insertIntoTargetGraph(lib, statements) {
     {},
     TARGET_DATABASE_ENDPOINT,
     BATCH_SIZE,
-    MAX_DB_RETRY_ATTEMPTS,
     SLEEP_BETWEEN_BATCHES,
-    SLEEP_TIME_AFTER_FAILED_DB_OPERATION,
     'INSERT');
 }
 

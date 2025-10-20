@@ -106,7 +106,7 @@ app.post('/flush', async function (_, res) {
       await muAuthSudo
         .updateSudo(flushQuery,
                     { }, //TODO: add mu-scope-id configurable
-                    { sparqlEndpoint: LANDING_ZONE_DATABASE_ENDPOINT });
+                    { sparqlEndpoint: LANDING_ZONE_DATABASE_ENDPOINT, mayRetry: true });
     }
     console.log('Flush successful');
   }
