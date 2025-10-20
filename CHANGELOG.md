@@ -1,3 +1,14 @@
+## 0.1.7
+ - use mu auth sudo builtin retry mechanism
+ - introduce `HTTP_MAX_QUERY_SIZE_BYTES` parameter (default to 60*1000 bytes) this is more reliable than `BATCH_SIZE`, if the query   payload is greater than that, will chunk the query even more. It reduces the number of failed queries that must be retried
+ - compact query string: calculate prefixes, remove unnecessary spaces and new lines. This reduces the data sent to virtuoso,
+   and probably speed up processing query.
+ - gzip support for delta and dump file download
+ - sanitize delta file's processing pipeline
+ - some datasets can have an empty base making n3 parser fails, filter out `BASE <>.`
+ - cleanup code
+ - generalize the recover mechanism with `updateWithRecover` util function.
+ - stable memory usage & cpu usage (during initial sync: ~90% for virtuoso, ~10% for the consumer)
 ## 0.1.6
  - update woodpecker config
 ## 0.1.5

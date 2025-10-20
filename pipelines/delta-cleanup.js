@@ -34,7 +34,8 @@ export async function startDeltaCleanup() {
         jobsToClean = jobsToClean.filter(j => j.job !== latestJob.job);
       }
 
-      for(const job of jobsToClean) {
+      while(jobsToClean.length) {
+        const job = jobsToClean.pop();
         await deleteDeltaFilesForJob(job);
         await cleanupJob(job.job);
       }

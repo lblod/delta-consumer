@@ -1,6 +1,7 @@
 // CONFIGURATION
 export const SYNC_FILES_PATH = process.env.DCR_SYNC_FILES_PATH || '/sync/files';
-export const DOWNLOAD_FILE_PATH = process.env.DCR_DOWNLOAD_FILE_PATH || '/files/:id/download';
+export const GET_FILE_PATH = process.env.DCR_GET_FILE_PATH || '/files/:id';
+export const DOWNLOAD_FILE_PATH = process.env.DCR_DOWNLOAD_FILE_PATH || GET_FILE_PATH + '/download';
 export const SYNC_DATASET_PATH = process.env.DCR_SYNC_DATASET_PATH || '/datasets';
 export const START_FROM_DELTA_TIMESTAMP = process.env.DCR_START_FROM_DELTA_TIMESTAMP;
 export const DELTA_FILE_FOLDER = process.env.DCR_DELTA_FILE_FOLDER || '/tmp/';
@@ -64,6 +65,7 @@ export const INITIAL_SYNC_JOB_OPERATION = process.env.DCR_INITIAL_SYNC_JOB_OPERA
 
 // COMPOSED VARIABLES
 export const SYNC_FILES_ENDPOINT = `${SYNC_BASE_URL}${SYNC_FILES_PATH}`;
+export const GET_FILE_ENDPOINT = `${SYNC_BASE_URL}${GET_FILE_PATH}`;
 export const DOWNLOAD_FILE_ENDPOINT = `${SYNC_BASE_URL}${DOWNLOAD_FILE_PATH}`;
 export const SYNC_DATASET_ENDPOINT = `${SYNC_BASE_URL}${SYNC_DATASET_PATH}`;
 

@@ -214,12 +214,12 @@ SPARQL mapping variables:
 
 - `INGEST_GRAPH (default: http://mu.semte.ch/graphs/public)`: graph in which all insert changesets are ingested
 - `BATCH_SIZE (default: 100)`: Size of the batches to ingest in DB
+- `HTTP_MAX_QUERY_SIZE_BYTES (default: 60000)`: max query size when executing an update query (default to ~60kb)
 - `BYPASS_MU_AUTH_FOR_EXPENSIVE_QUERIES (default: false)`: (see code where it is called) This has repercussions! Know what you do!
 - `DIRECT_DATABASE_ENDPOINT (default: http://virtuoso:8890/sparql)`: only used when BYPASS_MU_AUTH_FOR_EXPENSIVE_QUERIES is set to true
 - `MU_CALL_SCOPE_ID_INITIAL_SYNC (default: 'http://redpencil.data.gift/id/concept/muScope/deltas/consumer/initialSync)'`: A scope that can be set to refine dispatching rules of the (internal) deltanotifier. This variable is relevant during the initial sync.
-- `MAX_DB_RETRY_ATTEMPTS (defaut: 5)`: Max DB retries in case of issues.
+- `SUDO_QUERY_RETRY_MAX_ATTEMPTS (defaut: 5)`: Max DB retries in case of issues.
 - `SLEEP_BETWEEN_BATCHES (default: 1000 ms)`: To not overload the system, every batch is paused.
-- `SLEEP_TIME_AFTER_FAILED_DB_OPERATION (default: 60000 ms)`: In case of failure during a DB operation, execution between retries is paused for a while.
 
 ## Delta Message Context - :warning: EXPERIMENTAL
 

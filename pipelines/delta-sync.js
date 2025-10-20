@@ -10,6 +10,7 @@ import {
   SERVICE_NAME,
   SYNC_FILES_ENDPOINT,
   WAIT_FOR_INITIAL_SYNC,
+  GET_FILE_ENDPOINT,
   LANDING_ZONE_GRAPH,
   LANDING_ZONE_DATABASE_ENDPOINT,
   ENABLE_TRIPLE_REMAPPING,
@@ -130,7 +131,19 @@ async function getSortedUnconsumedFiles(since) {
       }
     });
     const json = await response.json();
-    return json.data.map(f => new DeltaFile(f)).sort(f => f.created);
+
+    const deltaFiles = await Promise.all(json.data.map(async (deltaFileMetadata) => {
+      const fileResponse = await fetcher(`${GET_FILE_ENDPOINT.replace(':id', deltaFileMetadata.id)}`, {
+        headers: {
+          'Accept': 'application/vnd.api+json'
+        }
+      });
+      const fileMetadata = await fileResponse.json();
+      const file = { ...fileMetadata.data.attributes };
+
+      return new new DeltaFile({ ...deltaFileMetadata, format: file.format })
+    }));
+    return deltaFiles.sort(f => f.created);
   } catch (e) {
     console.log(`Unable to retrieve unconsumed files from ${SYNC_FILES_ENDPOINT}`);
     throw e;

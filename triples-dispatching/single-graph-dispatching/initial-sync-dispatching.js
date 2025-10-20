@@ -26,7 +26,7 @@ const endpoint = BYPASS_MU_AUTH_FOR_EXPENSIVE_QUERIES ? DIRECT_DATABASE_ENDPOINT
 async function dispatch(lib, data) {
   const { mu, } = lib;
 
-  const triples = data.termObjects.map(o => `${o.subject} ${o.predicate} ${o.object}.`);
+  const triples = data.termObjects;
 
   if (BYPASS_MU_AUTH_FOR_EXPENSIVE_QUERIES) {
     console.warn(`Service configured to skip MU_AUTH!`);
