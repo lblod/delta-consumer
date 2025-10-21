@@ -9,6 +9,9 @@
  - cleanup code
  - generalize the recover mechanism with `updateWithRecover` util function.
  - stable memory usage & cpu usage (during initial sync: ~90% for virtuoso, ~10% for the consumer)
+ - bump mu-javascript-template to 1.9.1
+ - use import instead of require
+ - remove lodash
 ## 0.1.6
  - update woodpecker config
 ## 0.1.5
