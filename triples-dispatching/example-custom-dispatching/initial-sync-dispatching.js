@@ -11,7 +11,7 @@
  *         ]
  * @return {void} Nothing
  */
-async function dispatch(lib, data){
+export async function dispatch(lib, data){
   const { mu, muAuthSudo } = lib;
 
   const triples = data.termObjects;
@@ -29,13 +29,10 @@ async function dispatch(lib, data){
  * @param { mu, muAuthSudo, fech } lib - The provided libraries from the host service.
  * @return {void} Nothing
  */
-async function onFinishInitialIngest(lib) {
+export async function onFinishInitialIngest(lib) {
   console.log(`
     Current implementation does nothing.
   `);
 }
 
-module.exports = {
-  dispatch,
-  onFinishInitialIngest
-};
+

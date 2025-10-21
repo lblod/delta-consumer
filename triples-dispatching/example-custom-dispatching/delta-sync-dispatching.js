@@ -11,7 +11,7 @@
  *         ]
  * @return {void} Nothing
  */
-async function dispatch(lib, data){
+export async function dispatch(lib, data){
   const { mu, muAuthSudo } = lib;
   const { termObjectChangeSets } =  data;
 
@@ -28,6 +28,4 @@ async function dispatch(lib, data){
   console.log(`All changeSets were logged, waiting for next update!`);
 }
 
-module.exports = {
-  dispatch
-};
+

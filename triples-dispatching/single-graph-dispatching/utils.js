@@ -34,7 +34,3 @@ async function sleep(sleepMs) {
   console.log(`Sleeping before next query execution: ${sleepMs}`);
   await new Promise(r => setTimeout(r, sleepMs));
 }
-
-module.exports = {
-  batchedUpdate
-};
