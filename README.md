@@ -19,6 +19,7 @@ However, custom ingestion rules are perfectly possible. Read along if you want t
 Refer to section `Turorials` for the quickstart.
 
 ### Disclaimer
+
 This service has grown a lot over time -organically-, and we totally get that it’s not the easiest to jump into with all the different settings. We’re working on making it better, so thanks for sticking with us.
 In the meantime, check out the tutorials or reach out if you need a hand.
 It’s being used in a bunch of apps now, and if it’s not working for you, it might just be one of the many settings that got missed.
@@ -26,45 +27,47 @@ We’ll figure it out together.
 
 ## Tutorials
 
-### I'm in a hurry and just want to get started.
+### I'm in a hurry and just want to get started
 
 Getting started indeed consumes (no pun intended) some brain space. Let's try to bundle these cases in the following section:
 
-#### I cloned an existing stack with a configured consumer, and I just want it to start consuming. I have no clue how.
+#### I cloned an existing stack with a configured consumer, and I just want it to start consuming. I have no clue how
 
 Always ensure your migrations have run!
 
 Then you can try to put the following in your `docker-compose.override.yml` file?
+
 ```yaml
-  the-name-of-the-consumer:
+the-name-of-the-consumer:
     environment:
-      DCR_DISABLE_INITIAL_SYNC: "false"
-      DCR_DISABLE_DELTA_INGEST: "false"
+        DCR_DISABLE_INITIAL_SYNC: 'false'
+        DCR_DISABLE_DELTA_INGEST: 'false'
 ```
 
-#### I have an endpoint with deltas and just want to start consuming it. I don't care about bells and whistles.
+#### I have an endpoint with deltas and just want to start consuming it. I don't care about bells and whistles
 
 ```yaml
-  quickstart-consumer:
+quickstart-consumer:
     image: lblod/delta-consumer:latest
     environment:
-      DCR_SERVICE_NAME: "quickstart-consumer"
-      DCR_SYNC_BASE_URL: 'https://loket.lokaalbestuur.vlaanderen.be' # The host where the delta-files may be found.
-      DCR_SYNC_FILES_PATH: "/sync/mandatarissen/files" # The api-path where the delta-files may be found on the producer.
-      DCR_DELTA_SYNC_JOB_OPERATION: 'http://redpencil.data.gift/id/jobs/concept/JobOperation/deltas/quickstart-consumer'
-      DCR_JOB_CREATOR_URI: 'http://data.lblod.info/services/id/quickstart-consumer'
-      DCR_START_FROM_DELTA_TIMESTAMP: "2023-12-01" # From where it should start syncing in time; left empty it starts from "now".
-                                                   # Hence, very likely if you start it without this value, it won't consume anything.
-                                                   # Because producer hasn't produced anything yet.
-      DCR_WAIT_FOR_INITIAL_SYNC: "false"
-      DCR_DISABLE_INITIAL_SYNC: "true"
+        DCR_SERVICE_NAME: 'quickstart-consumer'
+        DCR_SYNC_BASE_URL: 'https://loket.lokaalbestuur.vlaanderen.be' # The host where the delta-files may be found.
+        DCR_SYNC_FILES_PATH: '/sync/mandatarissen/files' # The api-path where the delta-files may be found on the producer.
+        DCR_DELTA_SYNC_JOB_OPERATION: 'http://redpencil.data.gift/id/jobs/concept/JobOperation/deltas/quickstart-consumer'
+        DCR_JOB_CREATOR_URI: 'http://data.lblod.info/services/id/quickstart-consumer'
+        DCR_START_FROM_DELTA_TIMESTAMP:
+            '2023-12-01' # From where it should start syncing in time; left empty it starts from "now".
+            # Hence, very likely if you start it without this value, it won't consume anything.
+            # Because producer hasn't produced anything yet.
+        DCR_WAIT_FOR_INITIAL_SYNC: 'false'
+        DCR_DISABLE_INITIAL_SYNC: 'true'
 ```
+
 This should start the consumer. This skips a lot of steps, such as the initial sync, but at least you will see things happening. If you thought, 'Oh, let's sync from `1970-01-01`,' it will take ages to complete.
 
+### I'm not in a hurry
 
-###  I'm not in a hurry.
-
-#### Add the service to a stack, with default behaviour.
+#### Add the service to a stack, with default behaviour
 
 The default behaviour fetches the information from the producer and maintains a single ingest graph.
 To add this behaviour to your stack:
@@ -73,18 +76,18 @@ Add the following to your `docker-compose.yml`:
 
 ```yaml
 consumer:
-  image: lblod/delta-consumer
-  environment:
-    DCR_SERVICE_NAME: 'your-custom-consumer-identifier' # replace with the desired consumer identifier
-    DCR_SYNC_BASE_URL: 'http://base-sync-url' # replace with link the application hosting the producer server
-    DCR_SYNC_DATASET_SUBJECT: 'http://data.lblod.info/datasets/delta-producer/dumps/CacheGraphDump'
-    DCR_INITIAL_SYNC_JOB_OPERATION: 'http://redpencil.data.gift/id/jobs/concept/JobOperation/deltas/consumer/xyzInitialSync'
-    DCR_DELTA_SYNC_JOB_OPERATION: 'http://redpencil.data.gift/id/jobs/concept/JobOperation/deltas/consumer/xyzDeltaFileSyncing'
-    DCR_JOB_CREATOR_URI: 'http://data.lblod.info/services/id/consumer'
-    INGEST_GRAPH: 'http://uri/of/the/graph/to/ingest/the/information'
+    image: lblod/delta-consumer
+    environment:
+        DCR_SERVICE_NAME: 'your-custom-consumer-identifier' # replace with the desired consumer identifier
+        DCR_SYNC_BASE_URL: 'http://base-sync-url' # replace with link the application hosting the producer server
+        DCR_SYNC_DATASET_SUBJECT: 'http://data.lblod.info/datasets/delta-producer/dumps/CacheGraphDump'
+        DCR_INITIAL_SYNC_JOB_OPERATION: 'http://redpencil.data.gift/id/jobs/concept/JobOperation/deltas/consumer/xyzInitialSync'
+        DCR_DELTA_SYNC_JOB_OPERATION: 'http://redpencil.data.gift/id/jobs/concept/JobOperation/deltas/consumer/xyzDeltaFileSyncing'
+        DCR_JOB_CREATOR_URI: 'http://data.lblod.info/services/id/consumer'
+        INGEST_GRAPH: 'http://uri/of/the/graph/to/ingest/the/information'
 ```
 
-#### Add the service to a stack with custom behaviour.
+#### Add the service to a stack with custom behaviour
 
 This service assumes hooks, where you can inject custom code.
 
@@ -95,16 +98,16 @@ For your convenience, we've added an example custom hook in `./triples-dispatchi
 
 ```yaml
 consumer:
-  image: lblod/delta-consumer
-  environment:
-    DCR_SERVICE_NAME: 'your-custom-consumer-identifier' # replace with the desired consumer identifier
-    DCR_SYNC_BASE_URL: 'http://base-sync-url' # replace with link the application hosting the producer server
-    DCR_SYNC_DATASET_SUBJECT: 'http://data.lblod.info/datasets/delta-producer/dumps/CacheGraphDump'
-    DCR_INITIAL_SYNC_JOB_OPERATION: 'http://redpencil.data.gift/id/jobs/concept/JobOperation/deltas/consumer/xyzInitialSync'
-    DCR_DELTA_SYNC_JOB_OPERATION: 'http://redpencil.data.gift/id/jobs/concept/JobOperation/deltas/consumer/xyzDeltaFileSyncing'
-    DCR_JOB_CREATOR_URI: 'http://data.lblod.info/services/id/consumer'
-  volumes:
-    - ./config/consumer/example-custom-dispatching:/config/triples-dispatching/custom-dispatching
+    image: lblod/delta-consumer
+    environment:
+        DCR_SERVICE_NAME: 'your-custom-consumer-identifier' # replace with the desired consumer identifier
+        DCR_SYNC_BASE_URL: 'http://base-sync-url' # replace with link the application hosting the producer server
+        DCR_SYNC_DATASET_SUBJECT: 'http://data.lblod.info/datasets/delta-producer/dumps/CacheGraphDump'
+        DCR_INITIAL_SYNC_JOB_OPERATION: 'http://redpencil.data.gift/id/jobs/concept/JobOperation/deltas/consumer/xyzInitialSync'
+        DCR_DELTA_SYNC_JOB_OPERATION: 'http://redpencil.data.gift/id/jobs/concept/JobOperation/deltas/consumer/xyzDeltaFileSyncing'
+        DCR_JOB_CREATOR_URI: 'http://data.lblod.info/services/id/consumer'
+    volumes:
+        - ./config/consumer/example-custom-dispatching:/config/triples-dispatching/custom-dispatching
 ```
 
 3. Start the stack. The console will print the fetched information from the producer.
@@ -253,10 +256,10 @@ When a delete occurs that breaks the `WHERE` part of a query, the entire matchin
 
 1. **Match queries for the statement.**
 2. **Delete resulting triples from the target graph:**
-   - The `CONSTRUCT` template is translated into a `DELETE` clause.
-   - The `WHERE` clause:
-     - Matching variables are bound to delta message values.
-     - The triple pattern is scoped to the landing zone graph.
+    - The `CONSTRUCT` template is translated into a `DELETE` clause.
+    - The `WHERE` clause:
+        - Matching variables are bound to delta message values.
+        - The triple pattern is scoped to the landing zone graph.
 3. **Delete the original triple from the landing zone.**
 
 #### Insert Operations
@@ -264,10 +267,10 @@ When a delete occurs that breaks the `WHERE` part of a query, the entire matchin
 1. **Insert the original triple into the landing zone.**
 2. **Match queries for the statement.**
 3. **Insert resulting triples into the target graph:**
-   - The `CONSTRUCT` template is translated into an `INSERT` clause.
-   - The `WHERE` clause:
-     - Matching variables are bound to delta message values.
-     - The triple pattern is scoped to the landing zone graph.
+    - The `CONSTRUCT` template is translated into an `INSERT` clause.
+    - The `WHERE` clause:
+        - Matching variables are bound to delta message values.
+        - The triple pattern is scoped to the landing zone graph.
 
 #### How Queries Are Matched with Triples
 
@@ -366,6 +369,7 @@ CONSTRUCT {
 #### Avoiding Bug When Deleting Strings With Special Characters
 
 When the consumer tries to delete a string containing a special character (such as `ë`), virtuoso wrongly considers the string as a `typed-literal` of datatype `http://www.w3.org/2001/XMLSchema#string`, meaning it'll try to do the following delete:
+
 ```SPARQL
 DELETE DATA
 {
@@ -375,7 +379,9 @@ DELETE DATA
   }
 }
 ```
+
 which does nothing because the delete that would actually work is
+
 ```SPARQL
 DELETE DATA
 {
@@ -387,6 +393,7 @@ DELETE DATA
 ```
 
 The following workaround can be used in your mapping files to force virtuoso to recognize the string as a simple `literal` instead of a `typed-literal` and to then apply the correct delete query. Instead of mapping the affected strings like
+
 ```SPARQL
 PREFIX locn: <http://www.w3.org/ns/locn#>
 
@@ -401,7 +408,9 @@ CONSTRUCT {
   ))
 }
 ```
+
 use this workaround
+
 ```SPARQL
 PREFIX locn: <http://www.w3.org/ns/locn#>
 
@@ -635,7 +644,7 @@ A function with signature `dispatch(lib, data)` should be exported. The document
 #### Extra notes
 
 - The API is deliberately limited. We provide a minimal toolset to CRUD the database, which limits the chances we don't regret our choices later and break existing implementations.
-  Hence, only `mu, muAuthSudo ` are provided for now. Adding libraries should be done under careful consideration. (It is still extendable)
+  Hence, only `mu, muAuthSudo` are provided for now. Adding libraries should be done under careful consideration. (It is still extendable)
 
 - Custom triples-dispatching allow their environment variables. Make sure to respect the convention, to differentiate core from custom.
   As an inspiration, check `single-graph-dispatching` for complex dispatching rules.
