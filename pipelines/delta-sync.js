@@ -195,20 +195,32 @@ async function getSortedUnconsumedFiles(since) {
 
         const deltaFiles = await Promise.all(
             json.data.map(async (deltaFileMetadata) => {
-                const fileResponse = await fetcher(
-                    `${GET_FILE_ENDPOINT.replace(':id', deltaFileMetadata.id)}`,
-                    {
-                        headers: {
-                            Accept: 'application/vnd.api+json',
-                        },
-                    }
-                );
-                const fileMetadata = await fileResponse.json();
-                const file = { ...fileMetadata.data.attributes };
+                let format = 'text/turtle';
+                try {
+                    const fileResponse = await fetcher(
+                        `${GET_FILE_ENDPOINT.replace(
+                            ':id',
+                            deltaFileMetadata.id
+                        )}`,
+                        {
+                            headers: {
+                                Accept: 'application/vnd.api+json',
+                            },
+                        }
+                    );
+                    const fileMetadata = await fileResponse.json();
+                    const file = { ...fileMetadata.data.attributes };
+                    format = file.format || 'text/turtle';
+                } catch (e) {
+                    console.log(
+                        'file endpoint not available, rollback to distribution.'
+                    );
+                    format = 'text/turtle';
+                }
 
                 return new new DeltaFile({
                     ...deltaFileMetadata,
-                    format: file.format,
+                    format,
                 })();
             })
         );
