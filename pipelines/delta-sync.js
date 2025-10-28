@@ -195,7 +195,7 @@ async function getSortedUnconsumedFiles(since) {
 
         const deltaFiles = await Promise.all(
             json.data.map(async (deltaFileMetadata) => {
-                let format = 'text/turtle';
+                let format = 'application/json';
                 try {
                     const fileResponse = await fetcher(
                         `${GET_FILE_ENDPOINT.replace(
@@ -210,12 +210,11 @@ async function getSortedUnconsumedFiles(since) {
                     );
                     const fileMetadata = await fileResponse.json();
                     const file = { ...fileMetadata.data.attributes };
-                    format = file.format || 'text/turtle';
+                    format = file.format || format;
                 } catch (e) {
                     console.log(
                         'file endpoint not available, rollback to distribution.'
                     );
-                    format = 'text/turtle';
                 }
 
                 return new new DeltaFile({
