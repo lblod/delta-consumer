@@ -1,6 +1,7 @@
 import * as muAuthSudo from '@lblod/mu-auth-sudo';
 import * as mu from 'mu';
 import fetcher from '../lib/fetcher';
+import { prepareStatements, insertIntoGraph, deleteFromGraph, updateWithRecover } from '../lib/utils';
 import {
     DELTA_SYNC_JOB_OPERATION,
     DISABLE_DELTA_INGEST,
@@ -141,6 +142,10 @@ async function runDeltaSync() {
                                 fetch,
                                 chunk,
                                 sparqlEscapeUri: mu.sparqlEscapeUri,
+                                prepareStatements,
+                                updateWithRecover,
+                                deleteFromGraph,
+                                insertIntoGraph,
                             },
                             { termObjectChangeSets },
                             constants
