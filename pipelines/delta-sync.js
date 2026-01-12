@@ -38,6 +38,7 @@ export async function startDeltaSync() {
       let previousInitialSyncJob;
 
       if (WAIT_FOR_INITIAL_SYNC) {
+        console.log('Getting previous initial sync job...');
         previousInitialSyncJob = await getLatestJobForOperation(INITIAL_SYNC_JOB_OPERATION, JOB_CREATOR_URI);
       }
 
@@ -80,11 +81,12 @@ async function runDeltaSync() {
 
       let parentTask;
       for (const [index, deltaFile] of sortedDeltafiles.entries()) {
-        console.log(`Ingesting deltafile created on ${deltaFile.created}`);
+        console.log(`Ingesting deltafile created on ${deltaFile.created} with download url ${deltaFile.downloadUrl}`);
         const task = await createDeltaSyncTask(JOBS_GRAPH, job, `${index}`, STATUS_BUSY, deltaFile, parentTask);
         try {
           let { termObjectChangeSets, changeSets } = await deltaFile.load();
           if (ENABLE_TRIPLE_REMAPPING) {
+            console.log("triple remapping enabled.");
             await deltaSparqlProcessing(changeSets);
           }
           if (ENABLE_CUSTOM_DISPATCH) {
@@ -92,10 +94,10 @@ async function runDeltaSync() {
           }
           await updateStatus(task, STATUS_SUCCESS);
           parentTask = task;
-          console.log(`Sucessfully ingested deltafile created on ${deltaFile.created}`);
+          console.log(`Sucessfully ingested deltafile created on ${deltaFile.created} with download url ${deltaFile.downloadUrl}`);
         }
         catch (e) {
-          console.error(`Something went wrong while ingesting deltafile created on ${deltaFile.created}`);
+          console.error(`Something went wrong while ingesting deltafile created on ${deltaFile.created} with download url ${deltaFile.downloadUrl}`);
           console.error(e);
           await updateStatus(task, STATUS_FAILED);
           throw e;
@@ -109,6 +111,7 @@ async function runDeltaSync() {
     }
   }
   catch (error) {
+    console.log("Error while running delta sync job", error);
     if (job) {
       await createJobError(JOBS_GRAPH, job, error);
       await failJob(job);
@@ -132,7 +135,7 @@ async function getSortedUnconsumedFiles(since) {
     const json = await response.json();
     return json.data.map(f => new DeltaFile(f)).sort(f => f.created);
   } catch (e) {
-    console.log(`Unable to retrieve unconsumed files from ${SYNC_FILES_ENDPOINT}`);
+    console.log(`Unable to retrieve unconsumed files from ${SYNC_FILES_ENDPOINT} since ${since.toISOString()}`);
     throw e;
   }
 }
