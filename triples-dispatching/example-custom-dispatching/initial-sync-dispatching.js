@@ -1,27 +1,41 @@
-/* Variables */
-const INGEST_GRAPH =
-    process.env.INGEST_GRAPH || `http://mu.semte.ch/graphs/public`;
+/**
+ * Dispatch the fetched information to a target graph.
+ * @param { mu, muAuthSudo, fetch } lib - The provided libraries from the host service.
+ * @param { termObjects } data - The fetched quad information, which objects of serialized Terms
+ *          [ {
+ *              graph: "<http://foo>",
+ *              subject: "<http://bar>",
+ *              predicate: "<http://baz>",
+ *              object: "<http://boom>^^<http://datatype>"
+ *            }
+ *         ]
+ * @return {void} Nothing
+ */
+async function dispatch(lib, data){
+  const { mu, muAuthSudo } = lib;
 
-const MU_CALL_SCOPE_ID_INITIAL_SYNC =
-    process.env.MU_CALL_SCOPE_ID_INITIAL_SYNC ||
-    "http://redpencil.data.gift/id/concept/muScope/deltas/consumer/initialSync";
+  const triples = data.termObjects;
 
-const sparqlEndpoint = "http://database:8890/sparql";
-
-/** Code **/
-export async function dispatch(lib, data) {
-    const { insertIntoGraph } = lib;
-
-    console.log(`Using ${sparqlEndpoint} to insert triples`);
-
-    await insertIntoGraph(data.termObjects, sparqlEndpoint, INGEST_GRAPH, { "mu-call-scope-id": MU_CALL_SCOPE_ID_INITIAL_SYNC });
-
+  console.log(`Found ${triples.length} to be processed`);
+  console.log(`Showing only the first 10.`);
+  const info = triples.slice(0,10).map(t => `triple: ${t.subject} ${t.predicate} ${t.object}`);
+  info.forEach(s => console.log(s));
+  console.log(`All triples were logged`);
 }
 
-export async function onFinishInitialIngest(_lib) {
-    console.log(`
-    onFinishInitialIngest was called!
-    Current implementation does nothing, no worries.
-    You can overrule it for extra manipulations after initial ingest.
+/**
+ * A callback you can override to do extra manipulations
+ *   after initial ingest.
+ * @param { mu, muAuthSudo, fech } lib - The provided libraries from the host service.
+ * @return {void} Nothing
+ */
+async function onFinishInitialIngest(lib) {
+  console.log(`
+    Current implementation does nothing.
   `);
 }
+
+module.exports = {
+  dispatch,
+  onFinishInitialIngest
+};

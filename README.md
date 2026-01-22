@@ -19,7 +19,6 @@ However, custom ingestion rules are perfectly possible. Read along if you want t
 Refer to section `Turorials` for the quickstart.
 
 ### Disclaimer
-
 This service has grown a lot over time -organically-, and we totally get that it’s not the easiest to jump into with all the different settings. We’re working on making it better, so thanks for sticking with us.
 In the meantime, check out the tutorials or reach out if you need a hand.
 It’s being used in a bunch of apps now, and if it’s not working for you, it might just be one of the many settings that got missed.
@@ -27,16 +26,15 @@ We’ll figure it out together.
 
 ## Tutorials
 
-### I'm in a hurry and just want to get started
+### I'm in a hurry and just want to get started.
 
 Getting started indeed consumes (no pun intended) some brain space. Let's try to bundle these cases in the following section:
 
-#### I cloned an existing stack with a configured consumer, and I just want it to start consuming. I have no clue how
+#### I cloned an existing stack with a configured consumer, and I just want it to start consuming. I have no clue how.
 
 Always ensure your migrations have run!
 
 Then you can try to put the following in your `docker-compose.override.yml` file?
-
 ```yaml
   the-name-of-the-consumer:
     environment:
@@ -44,7 +42,7 @@ Then you can try to put the following in your `docker-compose.override.yml` file
       DCR_DISABLE_DELTA_INGEST: "false"
 ```
 
-#### I have an endpoint with deltas and just want to start consuming it. I don't care about bells and whistles
+#### I have an endpoint with deltas and just want to start consuming it. I don't care about bells and whistles.
 
 ```yaml
   quickstart-consumer:
@@ -61,12 +59,12 @@ Then you can try to put the following in your `docker-compose.override.yml` file
       DCR_WAIT_FOR_INITIAL_SYNC: "false"
       DCR_DISABLE_INITIAL_SYNC: "true"
 ```
-
 This should start the consumer. This skips a lot of steps, such as the initial sync, but at least you will see things happening. If you thought, 'Oh, let's sync from `1970-01-01`,' it will take ages to complete.
 
-### I'm not in a hurry
 
-#### Add the service to a stack, with default behaviour
+###  I'm not in a hurry.
+
+#### Add the service to a stack, with default behaviour.
 
 The default behaviour fetches the information from the producer and maintains a single ingest graph.
 To add this behaviour to your stack:
@@ -86,7 +84,7 @@ consumer:
     INGEST_GRAPH: 'http://uri/of/the/graph/to/ingest/the/information'
 ```
 
-#### Add the service to a stack with custom behaviour
+#### Add the service to a stack with custom behaviour.
 
 This service assumes hooks, where you can inject custom code.
 
@@ -216,12 +214,12 @@ SPARQL mapping variables:
 
 - `INGEST_GRAPH (default: http://mu.semte.ch/graphs/public)`: graph in which all insert changesets are ingested
 - `BATCH_SIZE (default: 100)`: Size of the batches to ingest in DB
-- `HTTP_MAX_QUERY_SIZE_BYTES (default: 60000)`: max query size when executing an update query (default to ~60kb)
 - `BYPASS_MU_AUTH_FOR_EXPENSIVE_QUERIES (default: false)`: (see code where it is called) This has repercussions! Know what you do!
 - `DIRECT_DATABASE_ENDPOINT (default: http://virtuoso:8890/sparql)`: only used when BYPASS_MU_AUTH_FOR_EXPENSIVE_QUERIES is set to true
 - `MU_CALL_SCOPE_ID_INITIAL_SYNC (default: 'http://redpencil.data.gift/id/concept/muScope/deltas/consumer/initialSync)'`: A scope that can be set to refine dispatching rules of the (internal) deltanotifier. This variable is relevant during the initial sync.
-- `SUDO_QUERY_RETRY_MAX_ATTEMPTS (defaut: 5)`: Max DB retries in case of issues.
+- `MAX_DB_RETRY_ATTEMPTS (defaut: 5)`: Max DB retries in case of issues.
 - `SLEEP_BETWEEN_BATCHES (default: 1000 ms)`: To not overload the system, every batch is paused.
+- `SLEEP_TIME_AFTER_FAILED_DB_OPERATION (default: 60000 ms)`: In case of failure during a DB operation, execution between retries is paused for a while.
 
 ## Delta Message Context - :warning: EXPERIMENTAL
 
@@ -637,7 +635,7 @@ A function with signature `dispatch(lib, data)` should be exported. The document
 #### Extra notes
 
 - The API is deliberately limited. We provide a minimal toolset to CRUD the database, which limits the chances we don't regret our choices later and break existing implementations.
-  Hence, only `mu, muAuthSudo` are provided for now. Adding libraries should be done under careful consideration. (It is still extendable)
+  Hence, only `mu, muAuthSudo ` are provided for now. Adding libraries should be done under careful consideration. (It is still extendable)
 
 - Custom triples-dispatching allow their environment variables. Make sure to respect the convention, to differentiate core from custom.
   As an inspiration, check `single-graph-dispatching` for complex dispatching rules.
