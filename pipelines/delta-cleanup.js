@@ -1,9 +1,9 @@
-import {  STATUS_FAILED, STATUS_SUCCESS, PREFIXES } from '../lib/constants';
+import { STATUS_BUSY, STATUS_FAILED, STATUS_SUCCESS, PREFIXES } from '../lib/constants';
 import { DELTA_JOBS_RETENTION_PERIOD,
          JOBS_GRAPH,
          SERVICE_NAME,
          DELTA_SYNC_JOB_OPERATION,
-         JOB_CREATOR_URI } from "./../config";
+         JOB_CREATOR_URI } from "../config";
 import { deleteDeltaFilesForJob } from '../lib/utils';
 import { cleanupJob, getJobs, getLatestJobForOperation } from '../lib/job';
 import { createError } from "../lib/error";
@@ -34,8 +34,7 @@ export async function startDeltaCleanup() {
         jobsToClean = jobsToClean.filter(j => j.job !== latestJob.job);
       }
 
-      while(jobsToClean.length) {
-        const job = jobsToClean.pop();
+      for(const job of jobsToClean) {
         await deleteDeltaFilesForJob(job);
         await cleanupJob(job.job);
       }
