@@ -1,11 +1,11 @@
 import { batchedUpdate } from './utils';
 import {
-  BYPASS_MU_AUTH_FOR_EXPENSIVE_QUERIES,
-  DIRECT_DATABASE_ENDPOINT,
-  MU_CALL_SCOPE_ID_INITIAL_SYNC,
-  BATCH_SIZE,
-  SLEEP_BETWEEN_BATCHES,
-  INGEST_GRAPH
+    BYPASS_MU_AUTH_FOR_EXPENSIVE_QUERIES,
+    DIRECT_DATABASE_ENDPOINT,
+    MU_CALL_SCOPE_ID_INITIAL_SYNC,
+    BATCH_SIZE,
+    SLEEP_BETWEEN_BATCHES,
+    INGEST_GRAPH
 } from './config';
 
 const endpoint = BYPASS_MU_AUTH_FOR_EXPENSIVE_QUERIES ? DIRECT_DATABASE_ENDPOINT : process.env.MU_SPARQL_ENDPOINT;
@@ -23,26 +23,26 @@ const endpoint = BYPASS_MU_AUTH_FOR_EXPENSIVE_QUERIES ? DIRECT_DATABASE_ENDPOINT
  *         ]
  * @return {void} Nothing
  */
-async function dispatch(lib, data) {
-  const { mu, } = lib;
+export async function dispatch(lib, data) {
+    const { mu, } = lib;
 
-  const triples = data.termObjects.map(o => `${o.subject} ${o.predicate} ${o.object}.`);
+    const triples = data.termObjects;
 
-  if (BYPASS_MU_AUTH_FOR_EXPENSIVE_QUERIES) {
-    console.warn(`Service configured to skip MU_AUTH!`);
-  }
-  console.log(`Using ${endpoint} to insert triples`);
+    if (BYPASS_MU_AUTH_FOR_EXPENSIVE_QUERIES) {
+        console.warn(`Service configured to skip MU_AUTH!`);
+    }
+    console.log(`Using ${endpoint} to insert triples`);
 
-  await batchedUpdate(
-    lib,
-    triples,
-    INGEST_GRAPH,
-    SLEEP_BETWEEN_BATCHES,
-    BATCH_SIZE,
-    { 'mu-call-scope-id': MU_CALL_SCOPE_ID_INITIAL_SYNC },
-    endpoint,
-    'INSERT'
-  );
+    await batchedUpdate(
+        lib,
+        triples,
+        INGEST_GRAPH,
+        SLEEP_BETWEEN_BATCHES,
+        BATCH_SIZE,
+        { 'mu-call-scope-id': MU_CALL_SCOPE_ID_INITIAL_SYNC },
+        endpoint,
+        'INSERT'
+    );
 }
 
 /**
@@ -51,15 +51,11 @@ async function dispatch(lib, data) {
  * @param { mu, muAuthSudo, fech } lib - The provided libraries from the host service.
  * @return {void} Nothing
  */
-async function onFinishInitialIngest(lib) {
-  console.log(`
+export async function onFinishInitialIngest(lib) {
+    console.log(`
     onFinishInitialIngest was called!
     Current implementation does nothing, no worries.
     You can overrule it for extra manipulations after initial ingest.
   `);
 }
 
-module.exports = {
-  dispatch,
-  onFinishInitialIngest
-};

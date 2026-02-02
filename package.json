@@ -1,28 +1,28 @@
 {
-  "name": "delta-consumer",
-  "version": "0.1.6",
-  "description": "Customizable consumer service to synchronise data from a producer stack",
-  "main": "app.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/lblod/delta-consumer.git"
-  },
-  "author": "info@redpencil.io",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/lblod/delta-consumer/issues"
-  },
-  "homepage": "https://github.com/lblod/delta-consumer#readme",
-  "dependencies": {
-    "@lblod/mu-auth-sudo": "0.6.1",
-    "cron": "^1.8.2",
-    "fs-extra": "^9.0.1",
-    "lodash": "^4.17.21",
-    "n3": "^1.25.1",
-    "node-fetch": "^2.6.1",
-    "sparqljs": "^3.7.1"
-  }
+    "name": "delta-consumer",
+    "version": "0.1.6",
+    "description": "Customizable consumer service to synchronise data from a producer stack",
+    "type": "module",
+    "main": "app.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/lblod/delta-consumer.git"
+    },
+    "author": "info@redpencil.io",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/lblod/delta-consumer/issues"
+    },
+    "homepage": "https://github.com/lblod/delta-consumer#readme",
+    "dependencies": {
+        "@lblod/mu-auth-sudo": "0.6.2",
+        "cron": "^1.8.2",
+        "fs-extra": "^9.0.1",
+        "n3": "^1.26.0",
+        "node-fetch": "^2.6.1",
+        "sparqljs": "^3.7.1"
+    }
 }
