@@ -1,10 +1,10 @@
-const { BYPASS_MU_AUTH_FOR_EXPENSIVE_QUERIES,
+import { BYPASS_MU_AUTH_FOR_EXPENSIVE_QUERIES,
   DIRECT_DATABASE_ENDPOINT,
   BATCH_SIZE,
   SLEEP_BETWEEN_BATCHES,
   INGEST_GRAPH
-} = require('./config');
-const { batchedUpdate } = require('./utils');
+} from './config';
+import { batchedUpdate } from './utils';
 const endpoint = BYPASS_MU_AUTH_FOR_EXPENSIVE_QUERIES ? DIRECT_DATABASE_ENDPOINT : process.env.MU_SPARQL_ENDPOINT; //Defaults to mu-auth
 
 
@@ -21,7 +21,7 @@ const endpoint = BYPASS_MU_AUTH_FOR_EXPENSIVE_QUERIES ? DIRECT_DATABASE_ENDPOINT
  *         ]
  * @return {void} Nothing
  */
-async function dispatch(lib, data) {
+export async function dispatch(lib, data) {
   const { mu, } = lib;
   const { termObjectChangeSets } = data;
 
@@ -59,6 +59,3 @@ async function dispatch(lib, data) {
   }
 }
 
-module.exports = {
-  dispatch
-};
