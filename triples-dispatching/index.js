@@ -1,4 +1,4 @@
-import { ENABLE_CUSTOM_DISPATCH } from "../config";
+import { ENABLE_CUSTOM_DISPATCH } from "./../config";
 
 const initialSyncDispatching = tryLoadModule('./../config/triples-dispatching/custom-dispatching/initial-sync-dispatching',
   './single-graph-dispatching/initial-sync-dispatching');
