@@ -17,10 +17,10 @@
   },
   "homepage": "https://github.com/lblod/delta-consumer#readme",
   "dependencies": {
-    "@lblod/mu-auth-sudo": "0.6.1",
+    "@lblod/mu-auth-sudo": "0.6.2",
     "cron": "^1.8.2",
     "fs-extra": "^9.0.1",
-    "n3": "^1.25.1",
+    "n3": "^1.26.0",
     "node-fetch": "^2.6.1",
     "sparqljs": "^3.7.1"
   }

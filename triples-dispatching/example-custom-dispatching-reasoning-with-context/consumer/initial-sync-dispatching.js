@@ -1,5 +1,5 @@
-const { batchedDbUpdate, transformLandingZoneGraph } = require('./util');
-const { BYPASS_MU_AUTH_FOR_EXPENSIVE_QUERIES,
+import { batchedDbUpdate, transformLandingZoneGraph } from './util';
+import { BYPASS_MU_AUTH_FOR_EXPENSIVE_QUERIES,
   DIRECT_DATABASE_ENDPOINT,
   MU_CALL_SCOPE_ID_INITIAL_SYNC,
   BATCH_SIZE,
@@ -9,7 +9,7 @@ const { BYPASS_MU_AUTH_FOR_EXPENSIVE_QUERIES,
   TARGET_GRAPH,
   DCR_LANDING_ZONE_GRAPH,
   DCR_LANDING_ZONE_DATABASE_ENDPOINT
-} = require('./config');
+} from './config';
 const endpoint = BYPASS_MU_AUTH_FOR_EXPENSIVE_QUERIES ? DIRECT_DATABASE_ENDPOINT : process.env.MU_SPARQL_ENDPOINT;
 
 /**
@@ -25,11 +25,11 @@ const endpoint = BYPASS_MU_AUTH_FOR_EXPENSIVE_QUERIES ? DIRECT_DATABASE_ENDPOINT
 *         ]
 * @return {void} Nothing
 */
-async function dispatch(lib, data) {
+export async function dispatch(lib, data) {
 
 }
 
-async function onFinishInitialIngest(lib, constants) {
+export async function onFinishInitialIngest(lib, constants) {
   const { muAuthSudo, fetch } = lib;
 
   const { LANDING_ZONE_GRAPH, LANDING_ZONE_DATABASE_ENDPOINT } = constants;
@@ -50,8 +50,3 @@ async function onFinishInitialIngest(lib, constants) {
     SLEEP_TIME_AFTER_FAILED_DB_OPERATION
   );
 }
-
-module.exports = {
-  dispatch,
-  onFinishInitialIngest
-};

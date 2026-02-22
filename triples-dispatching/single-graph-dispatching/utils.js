@@ -49,6 +49,3 @@ export async function batchedUpdate(
   }
 }
 
-module.exports = {
-  batchedUpdate
-};
