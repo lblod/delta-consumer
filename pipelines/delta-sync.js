@@ -1,6 +1,7 @@
 import * as muAuthSudo from '@lblod/mu-auth-sudo';
 import * as mu from 'mu';
 import fetcher from '../lib/fetcher';
+import { prepareStatements, insertIntoGraph, deleteFromGraph, updateWithRecover, chunk } from '../lib/utils';
 import {
   DELTA_SYNC_JOB_OPERATION,
   DISABLE_DELTA_INGEST,
@@ -24,7 +25,6 @@ import { createJob, failJob, getJobs, getLatestJobForOperation } from '../lib/jo
 import { updateStatus } from '../lib/utils';
 import { deltaSyncDispatching } from '../triples-dispatching';
 import * as fetch from 'node-fetch';
-import { chunk } from 'lodash';
 import { deltaSparqlProcessing } from '../lib/delta-sparql-mapping.js';
 
 export async function startDeltaSync() {
@@ -88,7 +88,7 @@ async function runDeltaSync() {
             await deltaSparqlProcessing(changeSets);
           }
           if (ENABLE_CUSTOM_DISPATCH) {
-            await deltaSyncDispatching.dispatch({ mu, muAuthSudo, fetch, chunk, sparqlEscapeUri: mu.sparqlEscapeUri }, { termObjectChangeSets }, constants);
+            await deltaSyncDispatching.dispatch({ mu, muAuthSudo, fetch, chunk, sparqlEscapeUri: mu.sparqlEscapeUri, prepareStatements, updateWithRecover, deleteFromGraph, insertIntoGraph }, { termObjectChangeSets }, constants);
           }
           await updateStatus(task, STATUS_SUCCESS);
           parentTask = task;

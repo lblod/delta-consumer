@@ -1,4 +1,4 @@
-import { STATUS_BUSY, STATUS_FAILED, STATUS_SUCCESS, PREFIXES } from '../lib/constants';
+import { STATUS_FAILED, STATUS_SUCCESS,  } from '../lib/constants';
 import { DELTA_JOBS_RETENTION_PERIOD,
          JOBS_GRAPH,
          SERVICE_NAME,
@@ -34,7 +34,8 @@ export async function startDeltaCleanup() {
         jobsToClean = jobsToClean.filter(j => j.job !== latestJob.job);
       }
 
-      for(const job of jobsToClean) {
+      while(jobsToClean.length) {
+        const job = jobsToClean.shift();
         await deleteDeltaFilesForJob(job);
         await cleanupJob(job.job);
       }
