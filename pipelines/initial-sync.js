@@ -20,12 +20,11 @@ import { getLatestDumpFile } from '../lib/dump-file';
 import { createError, createJobError } from '../lib/error';
 import { createJob, getLatestJobForOperation } from '../lib/job';
 import { createTask } from '../lib/task';
-import { updateStatus } from '../lib/utils';
+import { updateStatus, chunk, prepareStatements, insertIntoGraph, deleteFromGraph, updateWithRecover  } from '../lib/utils';
 import { initialSyncDispatching } from '../triples-dispatching';
 import * as muAuthSudo from '@lblod/mu-auth-sudo';
 import * as mu from 'mu';
 import * as fetch from 'node-fetch';
-import { chunk } from 'lodash';
 import { initialMapping } from '../lib/delta-sparql-mapping';
 export async function startInitialSync() {
   try {
@@ -77,7 +76,7 @@ async function runInitialSync() {
 
       if (initialSyncDispatching.onFinishInitialIngest) {
         console.log('Found onFinishInitialIngest, calling.');
-        await initialSyncDispatching.onFinishInitialIngest({ mu, muAuthSudo, fetch, chunk, sparqlEscapeUri: mu.sparqlEscapeUri }, { LANDING_ZONE_GRAPH, LANDING_ZONE_DATABASE_ENDPOINT });
+        await initialSyncDispatching.onFinishInitialIngest({ mu, muAuthSudo, fetch, chunk, sparqlEscapeUri: mu.sparqlEscapeUri, prepareStatements, updateWithRecover, deleteFromGraph, insertIntoGraph }, { LANDING_ZONE_GRAPH, LANDING_ZONE_DATABASE_ENDPOINT });
       }
       await updateStatus(task, STATUS_SUCCESS);
     } else {
