@@ -1,8 +1,8 @@
-const {
+import {
   transformStatements,
   deleteFromTargetGraph,
   insertIntoTargetGraph,
-} = require('./util');
+} from './util';
 
 /**
 * Dispatch the fetched information to a target graph.
@@ -26,7 +26,7 @@ const {
 * @return {void} Nothing
 */
 
-async function dispatch(lib, data) {
+export async function dispatch(lib, data) {
   const { mu, muAuthSudo, fetch } = lib;
   let { termObjectChangeSets, termObjectChangeSetsWithContext } = data;
 
@@ -89,6 +89,3 @@ async function dispatch(lib, data) {
   }
 }
 
-module.exports = {
-  dispatch
-};

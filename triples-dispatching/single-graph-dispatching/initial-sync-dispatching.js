@@ -23,7 +23,7 @@ const endpoint = BYPASS_MU_AUTH_FOR_EXPENSIVE_QUERIES ? DIRECT_DATABASE_ENDPOINT
  *         ]
  * @return {void} Nothing
  */
-async function dispatch(lib, data) {
+export async function dispatch(lib, data) {
   const { mu, } = lib;
 
   const triples = data.termObjects.map(o => `${o.subject} ${o.predicate} ${o.object}.`);
@@ -51,15 +51,10 @@ async function dispatch(lib, data) {
  * @param { mu, muAuthSudo, fech } lib - The provided libraries from the host service.
  * @return {void} Nothing
  */
-async function onFinishInitialIngest(lib) {
+export async function onFinishInitialIngest(lib) {
   console.log(`
     onFinishInitialIngest was called!
     Current implementation does nothing, no worries.
     You can overrule it for extra manipulations after initial ingest.
   `);
 }
-
-module.exports = {
-  dispatch,
-  onFinishInitialIngest
-};

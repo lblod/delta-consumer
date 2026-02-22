@@ -1,15 +1,15 @@
 import { ENABLE_CUSTOM_DISPATCH } from "./../config";
 
-export const initialSyncDispatching = tryLoadModule('./../config/triples-dispatching/custom-dispatching/initial-sync-dispatching.js',
+export const initialSyncDispatching = await tryLoadModule('./../config/triples-dispatching/custom-dispatching/initial-sync-dispatching.js',
   './single-graph-dispatching/initial-sync-dispatching');
-export const deltaSyncDispatching = tryLoadModule('./../config/triples-dispatching/custom-dispatching/delta-sync-dispatching.js',
+export const deltaSyncDispatching = await tryLoadModule('./../config/triples-dispatching/custom-dispatching/delta-sync-dispatching.js',
   './single-graph-dispatching/delta-sync-dispatching');
-export const deltaContextConfiguration = tryLoadModule('./../config/triples-dispatching/custom-dispatching/delta-context-config.js',
+export const deltaContextConfiguration = await tryLoadModule('./../config/triples-dispatching/custom-dispatching/delta-context-config.js',
   './single-graph-dispatching/delta-context-config');
 
-function tryLoadModule(targetModulePath, fallbackModulePath) {
+async function tryLoadModule(targetModulePath, fallbackModulePath) {
   try {
-    const module = require(targetModulePath);
+    const module = await import(targetModulePath);
     console.log(`[***************************************************]`);
     console.log(`Custom dispatching logic found on ${targetModulePath}`);
     console.log(`[***************************************************]`);
@@ -20,7 +20,8 @@ function tryLoadModule(targetModulePath, fallbackModulePath) {
       console.log(`[!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!]`);
       console.warn(`${targetModulePath} not found, assuming default behaviour loaded on ${fallbackModulePath}`);
       console.log(`[!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!]`);
-      return require(fallbackModulePath);
+      const m = await import(fallbackModulePath);
+      return m;
     }
     else {
       console.error(`It seems something went wrong while loading dispatching-logic.`);
