@@ -1,3 +1,5 @@
+## 0.1.7
+ - added explicit bgp triples selection as validation
 ## 0.1.6
  - update woodpecker config
 ## 0.1.5
