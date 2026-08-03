@@ -1,4 +1,4 @@
-const {
+import {
   MAX_REASONING_RETRY_ATTEMPTS,
   SLEEP_TIME_AFTER_FAILED_REASONING_OPERATION,
   MAX_DB_RETRY_ATTEMPTS,
@@ -8,9 +8,9 @@ const {
   DELETE_GRAPH,
   BATCH_SIZE,
   TARGET_DATABASE_ENDPOINT
-} = require('./config');
+} from './config';
 
-async function batchedDbUpdate(muUpdate,
+export async function batchedDbUpdate(muUpdate,
   graph,
   triples,
   extraHeaders,
@@ -78,7 +78,7 @@ async function operationWithRetry(callback,
  * @param {Function} fn - Function that accepts single argument: an element of the array, and should return a truthy or falsy value.
  * @returns {Object} Object that contains keys passes and fails, each representing an array with elemets that pass or fail the predicate respectively
  */
-function partition(arr, fn) {
+export function partition(arr, fn) {
   let passes = [], fails = [];
   arr.forEach((item) => (fn(item) ? passes : fails).push(item));
   return { passes, fails };
@@ -109,7 +109,7 @@ function mainConversion(fetch, triples) {
     .then(response => response.text());
 }
 
-function transformStatements(fetch, triples) {
+export function transformStatements(fetch, triples) {
   console.log(`Received ${JSON.stringify(triples)} to transform`);
   return transformTriples(fetch, triples.join('\n')).then(
     graph => {
@@ -120,7 +120,7 @@ function transformStatements(fetch, triples) {
   )
 }
 
-async function deleteFromTargetGraph(lib, statements) {
+export async function deleteFromTargetGraph(lib, statements) {
   console.log(`Deleting ${statements.length} statements from target graph`);
   console.log(`Statements:  ${JSON.stringify(statements)}`)
   await batchedDbUpdate(
@@ -136,7 +136,7 @@ async function deleteFromTargetGraph(lib, statements) {
     'DELETE');
 }
 
-async function insertIntoTargetGraph(lib, statements) {
+export async function insertIntoTargetGraph(lib, statements) {
   console.log(`Inserting ${statements.length} statements into target graph`);
   console.log(`Statements:  ${JSON.stringify(statements)}`)
 
@@ -153,7 +153,7 @@ async function insertIntoTargetGraph(lib, statements) {
     'INSERT');
 }
 
-async function transformLandingZoneGraph(fetch, constants) {
+export async function transformLandingZoneGraph(fetch, constants) {
   const { LANDING_ZONE_GRAPH, LANDING_ZONE_DATABASE_ENDPOINT } = constants;
 
   console.log(`Transforming landing zone graph: ${LANDING_ZONE_GRAPH}`);
@@ -165,11 +165,3 @@ async function transformLandingZoneGraph(fetch, constants) {
   return statements;
 }
 
-module.exports = {
-  batchedDbUpdate,
-  partition,
-  transformStatements,
-  transformLandingZoneGraph,
-  deleteFromTargetGraph,
-  insertIntoTargetGraph,
-};
