@@ -1,3 +1,6 @@
+## Unreleased
+ - Add finite timeouts to SPARQL and producer HTTP requests so a dropped connection fails the sync job instead of blocking the sync queue permanently (`DCR_SPARQL_TIMEOUT_MS`, `DCR_SYNC_REQUEST_TIMEOUT_MS`, `DCR_TASK_WATCHDOG_TIMEOUT_MS`)
+ - Fix promises that never settle: file downloads on a mid-transfer stream error, and initial-sync parsing when the dump's quad count is a multiple of the batch size
 ## 0.1.7
  - added explicit bgp triples selection as validation
 ## 0.1.6

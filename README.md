@@ -185,6 +185,9 @@ The following environment variables are optional:
 - `DCR_KEEP_DELTA_FILES (default: false)`: if you want to keep the downloaded delta-files (ease of troubleshooting)
 - `DCR_DELTA_JOBS_RETENTION_PERIOD (default: -1)`: number of days to keep delta files, a value of -1 means all files will be retained.
 - `DCR_CRON_PATTERN_DELTA_CLEANUP (default: 0 0 * * * *)`: cron pattern at which the consumer needs to clean up data automatically.
+- `DCR_SPARQL_TIMEOUT_MS (default: 600000, i.e. 10 minutes)`: maximum time in ms for a single SPARQL request (both through mu-auth and direct database endpoints). On timeout the sync task fails with an error in the jobs graph and the next cron tick retries; without it, a dropped connection blocks the sync queue permanently. Raise this if you have initial-sync or mapping queries that legitimately run longer. A value of 0 disables the timeout.
+- `DCR_SYNC_REQUEST_TIMEOUT_MS (default: 120000, i.e. 2 minutes)`: maximum time in ms to wait for a response from the producer API (login, file listing, dataset lookup). A file download fails if no data is received for this long, but may take as long as needed while data keeps coming in. A value of 0 disables the timeout.
+- `DCR_TASK_WATCHDOG_TIMEOUT_MS (default: 1800000, i.e. 30 minutes)`: safety net for the sync queue; an error is logged every interval a sync task is still running, since it is then likely stuck and blocking the queue (this should never happen as long as the timeouts above are active). A value of 0 disables the watchdog.
 
 The following environment variables are optional and only necessary if the delta-producer-publication-graph-maintainer requires authentication:
 
