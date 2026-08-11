@@ -1,0 +1,44 @@
+{
+  "version": "0.1",
+  "scripts": [
+    {
+      "documentation": {
+        "command": "initial-sync",
+        "description": "Run initial sync",
+        "arguments": ["base_url"]
+      },
+      "environment": {
+        "image": "node:24",
+        "interactive": true,
+        "script": "initial-sync.mjs",
+        "join_networks": true
+      }
+    },
+    {
+      "documentation": {
+        "command": "delta-sync",
+        "description": "Run delta sync manually",
+        "arguments": ["base_url"]
+      },
+      "environment": {
+        "image": "node:24",
+        "interactive": true,
+        "script": "delta-sync.mjs",
+        "join_networks": true
+      }
+    },
+    {
+      "documentation": {
+        "command": "delta-cleanup",
+        "description": "Run delta cleanup manually",
+        "arguments": ["base_url"]
+      },
+      "environment": {
+        "image": "node:24",
+        "interactive": true,
+        "script": "delta-cleanup.mjs",
+        "join_networks": true
+      }
+    }
+  ]
+}
