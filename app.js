@@ -9,7 +9,10 @@ import {
   ENABLE_DELTA_CONTEXT,
   LANDING_ZONE_GRAPH,
   LANDING_ZONE_DATABASE_ENDPOINT,
-  CRON_PATTERN_DELTA_CLEANUP
+  CRON_PATTERN_DELTA_CLEANUP,
+  DISABLE_INITIAL_SYNC,
+  DISABLE_DELTA_INGEST,
+  DISABLE_DELTA_CLEANUP
 } from './config';
 import { waitForDatabase } from './lib/database';
 import { ProcessingQueue } from './lib/processing-queue';
@@ -18,6 +21,7 @@ import { deleteDeltaFilesForJob } from './lib/utils';
 import { startDeltaSync } from './pipelines/delta-sync';
 import { startInitialSync } from './pipelines/initial-sync';
 import { startDeltaCleanup } from './pipelines/delta-cleanup';
+import { isNumber } from 'lodash';
 
 const deltaSyncQueue = new ProcessingQueue('delta-sync-queue');
 
@@ -25,26 +29,39 @@ app.get('/', function(req, res) {
   res.send(`Hello, you have reached ${SERVICE_NAME}! I'm doing just fine :)`);
 });
 
-waitForDatabase(startInitialSync);
+if (!DISABLE_INITIAL_SYNC) {
+  waitForDatabase(deltaSyncQueue.addJob(startInitialSync));
+}
 
-new CronJob(CRON_PATTERN_DELTA_SYNC, async function() {
-  const now = new Date().toISOString();
-  console.info(`Delta sync triggered by cron job at ${now}`);
-  deltaSyncQueue.addJob(startDeltaSync);
-}, null, true);
+if (!DISABLE_DELTA_INGEST) {
+  new CronJob(
+    CRON_PATTERN_DELTA_SYNC,
+    async function () {
+      const now = new Date().toISOString();
+      console.info(`Delta sync triggered by cron job at ${now}`);
+      deltaSyncQueue.addJob(startDeltaSync);
+    },
+    null,
+    true,
+  );
+}
 
-new CronJob(CRON_PATTERN_DELTA_CLEANUP, async function() {
-  const now = new Date().toISOString();
-  console.info(`Delta cleanup triggered by cron job at ${now}`);
-  deltaSyncQueue.addJob(startDeltaCleanup);
+if (!DISABLE_DELTA_CLEANUP) {
+  new CronJob(
+    CRON_PATTERN_DELTA_CLEANUP,
+    async function () {
+      const now = new Date().toISOString();
+      console.info(`Delta cleanup triggered by cron job at ${now}`);
+      deltaSyncQueue.addJob(startDeltaCleanup);
 }, null, true);
+}
 
 /*
  * ENDPOINTS CURRENTLY MEANT FOR DEBUGGING
  */
-
+ 
 app.post('/initial-sync-jobs', async function( _, res ){
-  startInitialSync();
+  deltaSyncQueue.addJob(startInitialSync);
   res.send({ msg: 'Started initial sync job' });
 });
 
@@ -57,12 +74,26 @@ app.delete('/initial-sync-jobs', async function( _, res ){
 });
 
 app.post('/delta-sync-jobs', async function( _, res ){
-  startDeltaSync();
+  deltaSyncQueue.addJob(startDeltaSync());
   res.send({ msg: 'Started delta sync job' });
 });
 
+app.post('/delta-replay-jobs', async function(req, res){
+  if(!req.body['since']){
+    res.status(400).send({ msg: 'Required body property "since" is missing.'})
+  }
+  const since = new Date(req.body['since']);
+  if(!since || isNaN(since)){
+    res.status(400).send({ msg: 'Provided body property "since" is invalid.'})
+  }
+  if(req.body['callLimit'] && (isNaN(req.body['callLimit']) || req.body['callLimit'] <= 0)){
+    res.status(400).send({ msg: 'Provided body property "callLimit" should be a positive number'})
+  }
+  deltaSyncQueue.addJob(startDeltaSync(since, req.body['callLimit'] ?? Infinity))
+})
+
 app.post('/delta-cleanup-jobs', async function( _, res ){
-  startDeltaCleanup();
+  deltaSyncQueue.addJob(startDeltaCleanup());
   res.send({ msg: 'Started delta cleanup job' });
 });
 

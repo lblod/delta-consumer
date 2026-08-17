@@ -179,8 +179,9 @@ The following environment variables are optional:
   from. `: id` will be replaced with the UUID of the file.
 - `DCR_CRON_PATTERN_DELTA_SYNC (default: 0 * * * * *)`: cron pattern at which the consumer needs to sync data automatically.
 - `DCR_START_FROM_DELTA_TIMESTAMP (ISO DateTime)`: timestamp to start sync data from (e.g. "2020-07-05T13:57:36.344Z") Only required when initial ingest hasn't run.
-- `DCR_DISABLE_INITIAL_SYNC (default: false)`: flag to disable initial sync
-- `DCR_DISABLE_DELTA_INGEST (default: false)`: flag to disable data ingestion, for example, while initializing the sync
+- `DCR_DISABLE_INITIAL_SYNC (default: false)`: flag to disable automatic initial sync
+- `DCR_DISABLE_DELTA_INGEST (default: false)`: flag to disable automatic delta ingestion
+- `DCR_DISABLE_DELTA_CLEANUP (default: false)`: flag to disable automatic delta cleanup
 - `DCR_WAIT_FOR_INITIAL_SYNC (default: true)`: flag to not wait for initial ingestion (meant for debugging)
 - `DCR_KEEP_DELTA_FILES (default: false)`: if you want to keep the downloaded delta-files (ease of troubleshooting)
 - `DCR_DELTA_JOBS_RETENTION_PERIOD (default: -1)`: number of days to keep delta files, a value of -1 means all files will be retained.

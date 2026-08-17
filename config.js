@@ -7,6 +7,7 @@ export const DELTA_FILE_FOLDER = process.env.DCR_DELTA_FILE_FOLDER || '/tmp/';
 export const KEEP_DELTA_FILES = process.env.DCR_KEEP_DELTA_FILES == 'true';
 export const DISABLE_DELTA_INGEST = process.env.DCR_DISABLE_DELTA_INGEST == 'true' ? true : false;
 export const DISABLE_INITIAL_SYNC = process.env.DCR_DISABLE_INITIAL_SYNC == 'true' ? true : false;
+export const DISABLE_DELTA_CLEANUP = process.env.DCR_DISABLE_DELTA_CLEANUP == 'true' ? true : false;
 export const WAIT_FOR_INITIAL_SYNC = process.env.DCR_WAIT_FOR_INITIAL_SYNC == 'false' ? false : true;
 export const DUMPFILE_FOLDER = process.env.DCR_DUMPFILE_FOLDER || 'consumer/deltas';
 export const CRON_PATTERN_DELTA_SYNC = process.env.DCR_CRON_PATTERN_DELTA_SYNC || '0 * * * * *'; // every minute
