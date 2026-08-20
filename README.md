@@ -427,6 +427,21 @@ CONSTRUCT {
 
 There is a little debugger API available. Please check `app.js` to see how it works.
 
+### Scripts
+
+This service contains the following mu scripts which you can call by running `mu script <service-name> <script-name>`
+- `initial-sync`: run the initial-sync process manually. If the initial-sync process has already been run, this will do nothing. This script runs regardless of the value of the `DCR_DISABLE_INITIAL_SYNC` environment variable. 
+  Example usage: `mu script delta-consumer initial-sync --base_url http://delta-consumer`
+- `delta-sync`: run a delta-sync manually. This script runs regardless of the value of the `DCR_DISABLE_DELTA_INGEST` environment variable. 
+  Example usage: `mu script delta-consumer delta-sync --base_url http://delta-consumer`
+- `delta-replay`: reingest all delta files starting from a given timestamp `since`.
+  Example usage: `mu script delta-consumer delta-sync --base_url http://delta-consumer --since 2026-06-26`
+- `delta-cleanup`: cleanup previous delta files and jobs.
+  Example usage: `mu script delta-consumer delta-cleanup --base_url http://delta-consumer`
+
+For more information on usage of these scripts, you may provide the `--help` option.
+
+
 ### Model
 
 #### prefixes

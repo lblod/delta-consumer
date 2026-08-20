@@ -4,39 +4,48 @@
     {
       "documentation": {
         "command": "initial-sync",
-        "description": "Run initial sync",
-        "arguments": ["base_url"]
+        "description": "Run initial sync"
       },
       "environment": {
         "image": "node:24",
         "interactive": true,
-        "script": "initial-sync.mjs",
+        "script": "jobs/initial-sync.sh",
         "join_networks": true
       }
     },
     {
       "documentation": {
         "command": "delta-sync",
-        "description": "Run delta sync manually",
-        "arguments": ["base_url"]
+        "description": "Run delta sync manually"
       },
       "environment": {
         "image": "node:24",
         "interactive": true,
-        "script": "delta-sync.mjs",
+        "script": "jobs/delta-sync.sh",
+        "join_networks": true
+      }
+    },
+    {
+      "documentation": {
+        "command": "delta-replay",
+        "description": "Run delta replay"
+      },
+      "environment": {
+        "image": "node:24",
+        "interactive": true,
+        "script": "jobs/delta-replay.sh",
         "join_networks": true
       }
     },
     {
       "documentation": {
         "command": "delta-cleanup",
-        "description": "Run delta cleanup manually",
-        "arguments": ["base_url"]
+        "description": "Run delta cleanup manually"
       },
       "environment": {
         "image": "node:24",
         "interactive": true,
-        "script": "delta-cleanup.mjs",
+        "script": "jobs/delta-cleanup.sh",
         "join_networks": true
       }
     }

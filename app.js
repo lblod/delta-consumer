@@ -22,6 +22,9 @@ import { startDeltaSync } from './pipelines/delta-sync';
 import { startInitialSync } from './pipelines/initial-sync';
 import { startDeltaCleanup } from './pipelines/delta-cleanup';
 import { isNumber } from 'lodash';
+import bodyParser from 'body-parser';
+
+app.use(bodyParser.json())
 
 const deltaSyncQueue = new ProcessingQueue('delta-sync-queue');
 
@@ -81,15 +84,15 @@ app.post('/delta-sync-jobs', async function( _, res ){
 app.post('/delta-replay-jobs', async function(req, res){
   if(!req.body['since']){
     res.status(400).send({ msg: 'Required body property "since" is missing.'})
+    return;
   }
   const since = new Date(req.body['since']);
   if(!since || isNaN(since)){
     res.status(400).send({ msg: 'Provided body property "since" is invalid.'})
+    return;
   }
-  if(req.body['callLimit'] && (isNaN(req.body['callLimit']) || req.body['callLimit'] <= 0)){
-    res.status(400).send({ msg: 'Provided body property "callLimit" should be a positive number'})
-  }
-  deltaSyncQueue.addJob(startDeltaSync(since, req.body['callLimit'] ?? Infinity))
+  res.send({ msg: 'Started delta replay job'});
+  deltaSyncQueue.addJob(startDeltaSync(since, Infinity))
 })
 
 app.post('/delta-cleanup-jobs', async function( _, res ){

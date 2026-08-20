@@ -49,7 +49,7 @@ export async function startDeltaSync(since, callLimit = 1) {
       for (const job of jobs) {
         await failJob(job.job);
       }
-      await runDeltaSync(since ?? await calculateLatestDeltaTimestamp(), 1);
+      await runDeltaSync(since ?? await calculateLatestDeltaTimestamp(), callLimit);
     }
   }
   catch (e) {
@@ -62,7 +62,7 @@ export async function runDeltaSync(since, callLimit = 1) {
   let job;
 
   try {
-    const sortedDeltafiles = await getDeltaFilesSince(since);
+    let sortedDeltafiles = await getDeltaFilesSince(since);
     if (!sortedDeltafiles.length) {
       console.log(`No new deltas published since ${since}: nothing to do.`);
     }
@@ -96,6 +96,7 @@ export async function runDeltaSync(since, callLimit = 1) {
       }
 
       await updateStatus(job, STATUS_SUCCESS);
+      sortedDeltafiles = await getDeltaFilesSince(new Date(sortedDeltafiles.at(-1).created));
       jobIndex += 1;
     }
   } catch (error) {
