@@ -77,7 +77,7 @@ app.delete('/initial-sync-jobs', async function( _, res ){
 });
 
 app.post('/delta-sync-jobs', async function( _, res ){
-  deltaSyncQueue.addJob(startDeltaSync());
+  deltaSyncQueue.addJob(startDeltaSync);
   res.send({ msg: 'Started delta sync job' });
 });
 
@@ -92,11 +92,11 @@ app.post('/delta-replay-jobs', async function(req, res){
     return;
   }
   res.send({ msg: 'Started delta replay job'});
-  deltaSyncQueue.addJob(startDeltaSync(since, Infinity))
+  deltaSyncQueue.addJob(() => startDeltaSync(since, Infinity));
 })
 
 app.post('/delta-cleanup-jobs', async function( _, res ){
-  deltaSyncQueue.addJob(startDeltaCleanup());
+  deltaSyncQueue.addJob(startDeltaCleanup);
   res.send({ msg: 'Started delta cleanup job' });
 });
 
