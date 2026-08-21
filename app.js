@@ -21,7 +21,6 @@ import { deleteDeltaFilesForJob } from './lib/utils';
 import { startDeltaSync } from './pipelines/delta-sync';
 import { startInitialSync } from './pipelines/initial-sync';
 import { startDeltaCleanup } from './pipelines/delta-cleanup';
-import { isNumber } from 'lodash';
 import bodyParser from 'body-parser';
 
 app.use(bodyParser.json())
