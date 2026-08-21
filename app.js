@@ -33,7 +33,7 @@ app.get('/', function(req, res) {
 });
 
 if (!DISABLE_INITIAL_SYNC) {
-  waitForDatabase(deltaSyncQueue.addJob(startInitialSync));
+  waitForDatabase(() => deltaSyncQueue.addJob(startInitialSync));
 }
 
 if (!DISABLE_DELTA_INGEST) {
