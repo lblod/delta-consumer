@@ -1,5 +1,4 @@
 import {
-  DISABLE_INITIAL_SYNC,
   INITIAL_SYNC_JOB_OPERATION,
   JOBS_GRAPH,
   JOB_CREATOR_URI,
@@ -29,24 +28,19 @@ import { chunk } from 'lodash';
 import { initialMapping } from '../lib/delta-sparql-mapping';
 export async function startInitialSync() {
   try {
-    console.info(`DISABLE_INITIAL_SYNC: ${DISABLE_INITIAL_SYNC}`);
-    if (!DISABLE_INITIAL_SYNC) {
-      const initialSyncJob = await getLatestJobForOperation(INITIAL_SYNC_JOB_OPERATION, JOB_CREATOR_URI);
-      // In following case we can safely (re)schedule an initial sync
-      if (!initialSyncJob || initialSyncJob.status == STATUS_FAILED) {
+    const initialSyncJob = await getLatestJobForOperation(INITIAL_SYNC_JOB_OPERATION, JOB_CREATOR_URI);
+    // In following case we can safely (re)schedule an initial sync
+    if (!initialSyncJob || initialSyncJob.status == STATUS_FAILED) {
         console.log(`No initial sync has run yet, or previous failed (see: ${initialSyncJob ? initialSyncJob.job : 'N/A'})`);
-        console.log(`(Re)starting initial sync`);
+      console.log(`(Re)starting initial sync`);
 
-        const job = await runInitialSync();
+      const job = await runInitialSync();
 
-        console.log(`Initial sync ${job} has been successfully run`);
-      } else if (initialSyncJob.status !== STATUS_SUCCESS) {
-        throw `Unexpected status for ${initialSyncJob.job}: ${initialSyncJob.status}. Check in the database what went wrong`;
-      } else {
-        console.log(`Initial sync <${initialSyncJob.job}> has already run.`);
-      }
+      console.log(`Initial sync ${job} has been successfully run`);
+    } else if (initialSyncJob.status !== STATUS_SUCCESS) {
+      throw `Unexpected status for ${initialSyncJob.job}: ${initialSyncJob.status}. Check in the database what went wrong`;
     } else {
-      console.warn('Initial sync disabled');
+      console.log(`Initial sync <${initialSyncJob.job}> has already run.`);
     }
   }
   catch (e) {
