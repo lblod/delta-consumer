@@ -435,7 +435,7 @@ This service contains the following mu scripts which you can call by running `mu
 - `delta-sync`: run a delta-sync manually. This script runs regardless of the value of the `DCR_DISABLE_DELTA_INGEST` environment variable. 
   Example usage: `mu script delta-consumer delta-sync --base_url http://delta-consumer`
 - `delta-replay`: reingest all delta files starting from a given timestamp `since`.
-  Example usage: `mu script delta-consumer delta-sync --base_url http://delta-consumer --since 2026-06-26`
+  Example usage: `mu script delta-consumer delta-replay --base_url http://delta-consumer --since 2026-06-26`
 - `delta-cleanup`: cleanup previous delta files and jobs.
   Example usage: `mu script delta-consumer delta-cleanup --base_url http://delta-consumer`
 

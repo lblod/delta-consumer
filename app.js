@@ -21,7 +21,6 @@ import { deleteDeltaFilesForJob } from './lib/utils';
 import { startDeltaSync } from './pipelines/delta-sync';
 import { startInitialSync } from './pipelines/initial-sync';
 import { startDeltaCleanup } from './pipelines/delta-cleanup';
-import { isNumber } from 'lodash';
 import bodyParser from 'body-parser';
 
 app.use(bodyParser.json())
@@ -33,7 +32,7 @@ app.get('/', function(req, res) {
 });
 
 if (!DISABLE_INITIAL_SYNC) {
-  waitForDatabase(deltaSyncQueue.addJob(startInitialSync));
+  waitForDatabase(() => deltaSyncQueue.addJob(startInitialSync));
 }
 
 if (!DISABLE_DELTA_INGEST) {
@@ -77,7 +76,7 @@ app.delete('/initial-sync-jobs', async function( _, res ){
 });
 
 app.post('/delta-sync-jobs', async function( _, res ){
-  deltaSyncQueue.addJob(startDeltaSync());
+  deltaSyncQueue.addJob(startDeltaSync);
   res.send({ msg: 'Started delta sync job' });
 });
 
@@ -92,11 +91,11 @@ app.post('/delta-replay-jobs', async function(req, res){
     return;
   }
   res.send({ msg: 'Started delta replay job'});
-  deltaSyncQueue.addJob(startDeltaSync(since, Infinity))
+  deltaSyncQueue.addJob(() => startDeltaSync(since, Infinity));
 })
 
 app.post('/delta-cleanup-jobs', async function( _, res ){
-  deltaSyncQueue.addJob(startDeltaCleanup());
+  deltaSyncQueue.addJob(startDeltaCleanup);
   res.send({ msg: 'Started delta cleanup job' });
 });
 
