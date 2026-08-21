@@ -1,3 +1,5 @@
+## 0.2.0
+- Added mu-cli scripts to facilitate development and replay
 ## 0.1.7
  - added explicit bgp triples selection as validation
 ## 0.1.6
