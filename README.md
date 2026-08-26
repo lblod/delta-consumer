@@ -179,8 +179,9 @@ The following environment variables are optional:
   from. `: id` will be replaced with the UUID of the file.
 - `DCR_CRON_PATTERN_DELTA_SYNC (default: 0 * * * * *)`: cron pattern at which the consumer needs to sync data automatically.
 - `DCR_START_FROM_DELTA_TIMESTAMP (ISO DateTime)`: timestamp to start sync data from (e.g. "2020-07-05T13:57:36.344Z") Only required when initial ingest hasn't run.
-- `DCR_DISABLE_INITIAL_SYNC (default: false)`: flag to disable initial sync
-- `DCR_DISABLE_DELTA_INGEST (default: false)`: flag to disable data ingestion, for example, while initializing the sync
+- `DCR_DISABLE_INITIAL_SYNC (default: false)`: flag to disable automatic initial sync
+- `DCR_DISABLE_DELTA_INGEST (default: false)`: flag to disable automatic delta ingestion
+- `DCR_DISABLE_DELTA_CLEANUP (default: false)`: flag to disable automatic delta cleanup
 - `DCR_WAIT_FOR_INITIAL_SYNC (default: true)`: flag to not wait for initial ingestion (meant for debugging)
 - `DCR_KEEP_DELTA_FILES (default: false)`: if you want to keep the downloaded delta-files (ease of troubleshooting)
 - `DCR_DELTA_JOBS_RETENTION_PERIOD (default: -1)`: number of days to keep delta files, a value of -1 means all files will be retained.
@@ -428,6 +429,21 @@ CONSTRUCT {
 ### API
 
 There is a little debugger API available. Please check `app.js` to see how it works.
+
+### Scripts
+
+This service contains the following mu scripts which you can call by running `mu script <service-name> <script-name>`
+- `initial-sync`: run the initial-sync process manually. If the initial-sync process has already been run, this will do nothing. This script runs regardless of the value of the `DCR_DISABLE_INITIAL_SYNC` environment variable. 
+  Example usage: `mu script delta-consumer initial-sync --base_url http://delta-consumer`
+- `delta-sync`: run a delta-sync manually. This script runs regardless of the value of the `DCR_DISABLE_DELTA_INGEST` environment variable. 
+  Example usage: `mu script delta-consumer delta-sync --base_url http://delta-consumer`
+- `delta-replay`: reingest all delta files starting from a given timestamp `since`.
+  Example usage: `mu script delta-consumer delta-replay --base_url http://delta-consumer --since 2026-06-26`
+- `delta-cleanup`: cleanup previous delta files and jobs.
+  Example usage: `mu script delta-consumer delta-cleanup --base_url http://delta-consumer`
+
+For more information on usage of these scripts, you may provide the `--help` option.
+
 
 ### Model
 
