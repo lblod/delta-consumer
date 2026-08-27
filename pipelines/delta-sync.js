@@ -1,6 +1,5 @@
 import * as muAuthSudo from '../lib/sparql';
 import * as mu from 'mu';
-import fetcher from '../lib/fetcher';
 import {
   DELTA_SYNC_JOB_OPERATION,
   INITIAL_SYNC_JOB_OPERATION,
