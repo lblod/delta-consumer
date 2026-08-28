@@ -21,7 +21,7 @@ import { createJob, getLatestJobForOperation } from '../lib/job';
 import { createTask } from '../lib/task';
 import { updateStatus } from '../lib/utils';
 import { initialSyncDispatching } from '../triples-dispatching';
-import * as muAuthSudo from '@lblod/mu-auth-sudo';
+import * as muAuthSudo from '../lib/sparql';
 import * as mu from 'mu';
 import * as fetch from 'node-fetch';
 import { chunk } from 'lodash';

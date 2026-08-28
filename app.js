@@ -1,6 +1,6 @@
 import { CronJob } from 'cron';
 import { app, errorHandler } from 'mu';
-import * as muAuthSudo from '@lblod/mu-auth-sudo';
+import * as muAuthSudo from './lib/sparql';
 import {
   CRON_PATTERN_DELTA_SYNC,
   INITIAL_SYNC_JOB_OPERATION,
