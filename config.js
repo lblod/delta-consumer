@@ -14,10 +14,10 @@ export const CRON_PATTERN_DELTA_SYNC = process.env.DCR_CRON_PATTERN_DELTA_SYNC |
 export const DELTA_JOBS_RETENTION_PERIOD = parseInt(process.env.DCR_DELTA_JOBS_RETENTION_PERIOD || -1);
 export const CRON_PATTERN_DELTA_CLEANUP = process.env.DCR_CRON_PATTERN_DELTA_CLEANUP || '0 0 * * * *'; // every hour
 export const BATCH_SIZE = parseInt(process.env.DCR_BATCH_SIZE) || 100;
-// TIMEOUTS (in ms, 0 disables the timeout)
-export const SPARQL_TIMEOUT_MS = parseInt(process.env.DCR_SPARQL_TIMEOUT_MS || 600000); // 10 minutes
-export const SYNC_REQUEST_TIMEOUT_MS = parseInt(process.env.DCR_SYNC_REQUEST_TIMEOUT_MS || 120000); // 2 minutes
-export const TASK_WATCHDOG_TIMEOUT_MS = parseInt(process.env.DCR_TASK_WATCHDOG_TIMEOUT_MS || 1800000); // 30 minutes
+// TIMEOUTS (in ms, 0 disables the timeout; the timeouts are opt-in)
+export const SPARQL_TIMEOUT_MS = parseInt(process.env.DCR_SPARQL_TIMEOUT_MS || 0); // recommended when enabling: 600000 (10 minutes)
+export const SYNC_REQUEST_TIMEOUT_MS = parseInt(process.env.DCR_SYNC_REQUEST_TIMEOUT_MS || 0); // recommended when enabling: 120000 (2 minutes)
+export const TASK_WATCHDOG_TIMEOUT_MS = parseInt(process.env.DCR_TASK_WATCHDOG_TIMEOUT_MS || 1800000); // 30 minutes, log-only
 // GRAPHS
 export const JOBS_GRAPH = process.env.JOBS_GRAPH || 'http://mu.semte.ch/graphs/system/jobs';
 
