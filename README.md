@@ -186,6 +186,9 @@ The following environment variables are optional:
 - `DCR_KEEP_DELTA_FILES (default: false)`: if you want to keep the downloaded delta-files (ease of troubleshooting)
 - `DCR_DELTA_JOBS_RETENTION_PERIOD (default: -1)`: number of days to keep delta files, a value of -1 means all files will be retained.
 - `DCR_CRON_PATTERN_DELTA_CLEANUP (default: 0 0 * * * *)`: cron pattern at which the consumer needs to clean up data automatically.
+- `DCR_SPARQL_TIMEOUT_MS (default: 0, disabled)`: maximum time in ms for a single SPARQL request (both through mu-auth and direct database endpoints). When enabled, a request whose response never arrives fails the sync task with a `SparqlTimeoutError` instead of blocking the sync queue permanently, and the next cron tick retries. Recommended value when enabling: 600000 (10 minutes); raise it if you have initial-sync or mapping queries that legitimately run longer.
+- `DCR_SYNC_REQUEST_TIMEOUT_MS (default: 0, disabled)`: maximum time in ms to wait for a response from the producer API (login, file listing, dataset lookup). A file download fails if no data is received for this long, but may take as long as needed while data keeps coming in. Recommended value when enabling: 120000 (2 minutes).
+- `DCR_TASK_WATCHDOG_TIMEOUT_MS (default: 1800000, i.e. 30 minutes)`: safety net for the sync queue; an error is logged every interval a sync task is still running, since it is then likely stuck and blocking the queue. It only logs and does not intervene; enable the timeouts above to unblock the queue automatically. A value of 0 disables the watchdog.
 
 The following environment variables are optional and only necessary if the delta-producer-publication-graph-maintainer requires authentication:
 
@@ -221,6 +224,10 @@ SPARQL mapping variables:
 - `MAX_DB_RETRY_ATTEMPTS (defaut: 5)`: Max DB retries in case of issues.
 - `SLEEP_BETWEEN_BATCHES (default: 1000 ms)`: To not overload the system, every batch is paused.
 - `SLEEP_TIME_AFTER_FAILED_DB_OPERATION (default: 60000 ms)`: In case of failure during a DB operation, execution between retries is paused for a while.
+
+### Where errors end up
+
+Every failure is written as an Error resource in the jobs graph (`JOBS_GRAPH`): its `oslc:message` carries the service name and, for timeouts, the name `SparqlTimeoutError` — this is what alerting (e.g. [job-alert-service](https://github.com/lblod/job-alert-service) on the failed job status, or message matching) can hook into. Errors are always also written to the container log, including when persisting the Error resource itself fails (for example because the database is unreachable — likely when the error was a database timeout to begin with): the log then shows the original error followed by a `Could not persist the error` line. The container log is therefore the channel that never loses an error.
 
 ## Delta Message Context - :warning: EXPERIMENTAL
 
