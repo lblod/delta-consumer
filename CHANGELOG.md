@@ -1,4 +1,4 @@
-## Unreleased
+## 0.3.0
  - Add opt-in timeouts (disabled by default) on SPARQL and producer HTTP requests so a dropped connection fails the sync job with a distinct `SparqlTimeoutError` instead of blocking the sync queue permanently (`DCR_SPARQL_TIMEOUT_MS`, `DCR_SYNC_REQUEST_TIMEOUT_MS`), plus a log-only queue watchdog (`DCR_TASK_WATCHDOG_TIMEOUT_MS`, default 30 minutes)
  - Always log errors to the console, also when persisting them to the jobs graph fails (e.g. database unreachable)
  - Fix promises that never settle: file downloads on a mid-transfer stream error, and initial-sync parsing when the dump's quad count is a multiple of the batch size
