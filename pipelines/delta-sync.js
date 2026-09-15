@@ -13,10 +13,10 @@ import {
   ENABLE_CUSTOM_DISPATCH,
 } from '../config';
 import { STATUS_BUSY, STATUS_FAILED, STATUS_SUCCESS } from '../lib/constants';
-import DeltaFile, { getDeltaFilesSince } from '../lib/delta-file';
+import { getDeltaFilesSince } from '../lib/delta-file';
 import { calculateLatestDeltaTimestamp } from '../lib/delta-sync-job';
 import { createDeltaSyncTask } from '../lib/delta-sync-task';
-import { createError, createJobError } from '../lib/error';
+import { insertError } from '../lib/error';
 import { createJob, failJob, getJobs, getLatestJobForOperation } from '../lib/job';
 import { updateStatus } from '../lib/utils';
 import { deltaSyncDispatching } from '../triples-dispatching';
@@ -51,7 +51,7 @@ export async function startDeltaSync(since, callLimit = 1) {
   }
   catch (e) {
     console.log(e);
-    await createError(JOBS_GRAPH, SERVICE_NAME, `Unexpected error while running normal sync task: ${e}`);
+    await insertError(JOBS_GRAPH, `Unexpected error while running normal sync task: ${e}`);
   }
 }
 
@@ -98,11 +98,11 @@ export async function runDeltaSync(since, callLimit = 1) {
     }
   } catch (error) {
     if (job) {
-      await createJobError(JOBS_GRAPH, job, error);
+      await insertError(JOBS_GRAPH, error, job);
       await failJob(job);
     }
     else {
-      await createError(JOBS_GRAPH, SERVICE_NAME, `Unexpected error while ingesting: ${error}`);
+      await insertError(JOBS_GRAPH, `Unexpected error while ingesting: ${error}`);
     }
   }
 }

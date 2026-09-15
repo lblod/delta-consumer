@@ -1,4 +1,4 @@
-import { STATUS_BUSY, STATUS_FAILED, STATUS_SUCCESS, PREFIXES } from '../lib/constants';
+import { STATUS_FAILED, STATUS_SUCCESS } from '../lib/constants';
 import { DELTA_JOBS_RETENTION_PERIOD,
          JOBS_GRAPH,
          SERVICE_NAME,
@@ -6,7 +6,7 @@ import { DELTA_JOBS_RETENTION_PERIOD,
          JOB_CREATOR_URI } from "../config";
 import { deleteDeltaFilesForJob } from '../lib/utils';
 import { cleanupJob, getJobs, getLatestJobForOperation } from '../lib/job';
-import { createError } from "../lib/error";
+import { insertError } from "../lib/error";
 
 export async function startDeltaCleanup() {
   try {
@@ -42,6 +42,6 @@ export async function startDeltaCleanup() {
   }
   catch (e) {
     console.log(e);
-    await createError(JOBS_GRAPH, SERVICE_NAME, `Unexpected error while running delta file cleanup task: ${e}`);
+    await insertError(JOBS_GRAPH, `Unexpected error while running delta file cleanup task: ${e}`);
   }
 }
