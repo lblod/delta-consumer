@@ -16,7 +16,7 @@ import {
 } from '../lib/constants';
 import { createDeltaSyncTask } from '../lib/delta-sync-task';
 import { getLatestDumpFile } from '../lib/dump-file';
-import { createError, createJobError } from '../lib/error';
+import { insertError } from '../lib/error';
 import { createJob, getLatestJobForOperation } from '../lib/job';
 import { createTask } from '../lib/task';
 import { updateStatus } from '../lib/utils';
@@ -45,7 +45,7 @@ export async function startInitialSync() {
   }
   catch (e) {
     console.log(e);
-    await createError(JOBS_GRAPH, SERVICE_NAME, `Unexpected error while running initial sync: ${e}`);
+    await insertError(JOBS_GRAPH, `Unexpected error while running initial sync: ${e}`);
   }
 }
 
@@ -93,7 +93,7 @@ async function runInitialSync() {
     if (task)
       await updateStatus(task, STATUS_FAILED);
     if (job) {
-      await createJobError(JOBS_GRAPH, job, e);
+      await insertError(JOBS_GRAPH, e, job);
       await updateStatus(job, STATUS_FAILED);
     }
     throw e;

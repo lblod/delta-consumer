@@ -227,7 +227,11 @@ SPARQL mapping variables:
 
 ### Where errors end up
 
-Every failure is written as an Error resource in the jobs graph (`JOBS_GRAPH`): its `oslc:message` carries the service name and, for timeouts, the name `SparqlTimeoutError` — this is what alerting (e.g. [job-alert-service](https://github.com/lblod/job-alert-service) on the failed job status, or message matching) can hook into. Errors are always also written to the container log, including when persisting the Error resource itself fails (for example because the database is unreachable — likely when the error was a database timeout to begin with): the log then shows the original error followed by a `Could not persist the error` line. The container log is therefore the channel that never loses an error.
+Every failure is written as an `oslc:Error` resource in the jobs graph (`JOBS_GRAPH`). The `oslc:message` keeps the service name and the original error text, so alerting can match on it:
+- for timeouts, the name `SparqlTimeoutError` — this is what alerting (e.g. [job-alert-service](https://github.com/lblod/job-alert-service) on the failed job status, or message matching) can hook into;
+- for all errors, alerting services like [loket-error-alert-service](https://github.com/lblod/loket-error-alert-service) watch the deltas for new `oslc:Error` and turn each one into an email.
+
+Errors are always also written to the container log, including when persisting the Error resource itself fails (for example because the database is unreachable — likely when the error was a database timeout to begin with): the log then shows the original error followed by a `Could not persist the error` line. The container log is therefore the channel that never loses an error.
 
 ## Delta Message Context - :warning: EXPERIMENTAL
 
