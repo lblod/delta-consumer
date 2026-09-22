@@ -169,6 +169,7 @@ The following environment variables are required:
 - `DCR_DELTA_SYNC_JOB_OPERATION`: Job operation of the delta sync job, used to describe the created jobs [REQUIRED]
 - `DCR_SYNC_DATASET_SUBJECT`: subject used when fetching the dataset [REQUIRED BY DEFAULT]
 - `DCR_INITIAL_SYNC_JOB_OPERATION`: Job operation of the initial sync job, used to describe the created jobs [REQUIRED BY DEFAULT]
+- `INVALID_DATATYPES`: comma-separated list of invalid datatypes (e.g in case of missing geosparql support). Default set to empty.
 
 To overrule the last two default required settings, and thus just ingest delta files, set `DCR_WAIT_FOR_INITIAL_SYNC: false` and `DCR_DISABLE_INITIAL_SYNC: true`.
 
