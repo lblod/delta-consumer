@@ -92,10 +92,11 @@ export async function runDeltaSync(since, callLimit = 1) {
         }
       }
 
-      await updateStatus(job, STATUS_SUCCESS);
       sortedDeltafiles = await getDeltaFilesSince(new Date(sortedDeltafiles.at(-1).created));
       jobIndex += 1;
     }
+    await updateStatus(job, STATUS_SUCCESS);
+
   } catch (error) {
     if (job) {
       await insertError(JOBS_GRAPH, error, job);
