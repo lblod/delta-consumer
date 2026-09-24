@@ -57,8 +57,9 @@ export async function startDeltaSync(since, callLimit = 1) {
 
 export async function runDeltaSync(since, callLimit = 1) {
   let job;
-
+  
   try {
+    job = await createJob(JOBS_GRAPH, DELTA_SYNC_JOB_OPERATION, JOB_CREATOR_URI, STATUS_BUSY);
     let sortedDeltafiles = await getDeltaFilesSince(since);
     if (!sortedDeltafiles.length) {
       console.log(`No new deltas published since ${since}: nothing to do.`);
@@ -66,7 +67,6 @@ export async function runDeltaSync(since, callLimit = 1) {
     const constants = { LANDING_ZONE_GRAPH, LANDING_ZONE_DATABASE_ENDPOINT };
     let jobIndex = 0;
     while (sortedDeltafiles.length && jobIndex < callLimit) {
-      job = await createJob(JOBS_GRAPH, DELTA_SYNC_JOB_OPERATION, JOB_CREATOR_URI, STATUS_BUSY);
 
       let parentTask;
       for (const [index, deltaFile] of sortedDeltafiles.entries()) {
